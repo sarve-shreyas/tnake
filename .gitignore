@@ -1,0 +1,122 @@
+# Build artifacts
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Executable files
+tnake
+main
+a.out
+
+# CMake build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Build directories
+build/
+bin/
+obj/
+debug/
+release/
+
+# VS Code specific files
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/c_cpp_properties.json
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux specific files
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+
+# Log files
+*.log
+*.out
+
+# Core dumps
+core
+core.*
+
+# Profiling data
+gmon.out
+*.gcov
+*.gcda
+*.gcno
+
+# Valgrind output
+*.valgrind
+
+# AddressSanitizer output
+*.asan
+
+# Test coverage reports
+coverage/
+*.coverage
+
+# Package files
+*.tar.gz
+*.zip
+*.rar
+
+# IDE specific files
+.idea/
+*.cbp
+*.layout
+*.depend
+
+# Other temporary files
+.cache/
+*.pid
+*.seed
+*.lock
