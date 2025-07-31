@@ -18,7 +18,6 @@ struct gameboard {
     struct coordinate bottom_right;
     struct coordinate bottom_left;
 };
-extern struct SpaceRepresentationStyle gameboard_block_style;
 
 int configureGameBoard(int height, int width, struct gameboard* board, struct terminal termi);
 

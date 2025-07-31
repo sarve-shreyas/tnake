@@ -6,7 +6,6 @@
 #include "ansi.h"
 #include "space.h"
 
-struct SpaceRepresentationStyle gameboard_block_style = {"..", ANSI_COLOR_FG_WHITE, ANSI_COLOR_BG_BLACK};
 
 int configureGameBoard(int height, int width, struct gameboard* board, struct terminal termi) {
     board->width = width;

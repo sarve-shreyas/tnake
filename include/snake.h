@@ -15,9 +15,6 @@ struct snakenode {
     int type;
 };
 
-extern struct SpaceRepresentationStyle snake_head_style;
-extern struct SpaceRepresentationStyle snake_body_style;
-
 struct snake {
     struct snakenode* headpos;
     struct snakenode* tail;

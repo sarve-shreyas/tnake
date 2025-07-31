@@ -34,6 +34,8 @@ set(SOURCES
     src/snake.c
     src/objectspace.c
     src/utils.c
+    src/abuffer.c
+    src/styles.c
 )
 
 # Header files (for IDE support)
@@ -46,6 +48,8 @@ set(HEADERS
     include/space.h
     include/utils.h
     include/translate.h
+    include/abuffer.h
+    include/styles.h
 )
 
 # Create executable

@@ -5,8 +5,6 @@
 #include "ansi.h"
 #include "utils.h"
 
-struct SpaceRepresentationStyle snake_head_style = {":)", ANSI_COLOR_FG_WHITE, ANSI_COLOR_BG_MAGENTA};
-struct SpaceRepresentationStyle snake_body_style = {"  ", ANSI_COLOR_FG_BLACK, ANSI_COLOR_BG_GREEN};
 
 void addSnakeSegment(struct snake* sn, int type, struct snakepartdata data) {
     struct snakenode* newnode = malloc(sizeof(struct snakenode));

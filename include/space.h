@@ -5,6 +5,7 @@ enum SpaceComponent {
     HEAD = 1000,
     BODY_PART,
     BOARD_BLOCK,
+    BOARD_BOUNDRY,
     NONE
 };
 
@@ -15,10 +16,23 @@ enum Direction {
     LEFT = -1,
 };
 
+enum BOUNDARY_TYPE {
+    TOP,
+    BOTTOM,
+    LEFT_BOUNDARY,
+    RIGHT_BOUNDARY,
+    TOP_LEFT_CORNER,
+    TOP_RIGHT_CORNER,
+    BOTTOM_LEFT_CORNER,
+    BOTTOM_RIGHT_CORNER,
+    NO_BOUNDARY
+};
+
 struct SpaceRepresentationStyle {
     char* str;
     int fgcolor;
     int bgcolor;
+    int len;
 };
 
 struct coordinate {

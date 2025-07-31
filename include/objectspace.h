@@ -12,9 +12,6 @@ struct objectspace {
     struct gameboard board;
 };
 
-// External declaration - defined in objectspace.c
-extern struct SpaceRepresentationStyle no_object_style;
-
 int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace);
 
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace);
