@@ -1,8 +1,8 @@
 #ifndef TRANSLATE_H
 #define TRANSLATE_H
 
-#include "snake.h"
 #include "gameboard.h"
+#include "snake.h"
 
 void translateZigZag(struct snake* sn, struct gameboard board) {
     moveBodyParts(sn);
@@ -36,4 +36,28 @@ void translateCircle(struct snake* sn, struct gameboard board) {
     updatePositionWithDirection(sn);
 }
 
-#endif // TRANSLATE_H
+void translateCyclic(struct snake* sn, struct gameboard board) {
+    static int xdip = 0;
+    static int ydip = 0;
+    moveBodyParts(sn);
+    int tsx = sn->headpos->data.coordinate.x;
+    int tsy = sn->headpos->data.coordinate.y;
+    int direction = sn->headpos->data.direction;
+    if (tsx == 0 && tsy == 0) {
+        sn->headpos->data.direction = RIGHT;
+    } else if (tsx == xdip + 1 && tsy == ydip) {
+        sn->headpos->data.direction = RIGHT;
+        xdip++;
+        ydip++;
+    } else if (tsy == board.width - 1 - ydip && tsx == xdip) {
+        sn->headpos->data.direction = DOWN;
+    } else if (tsy == ydip && tsx == board.height - 1 - xdip) {
+        sn->headpos->data.direction = UP;
+    } else if (tsy == board.width - 1 - ydip && tsx == board.height - 1 - xdip) {
+        sn->headpos->data.direction = LEFT;
+    }
+    updatePositionWithDirection(sn);
+    updateSnakeState(sn);
+}
+
+#endif  // TRANSLATE_H

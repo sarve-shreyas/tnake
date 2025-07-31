@@ -19,11 +19,14 @@ struct snake {
     struct snakenode* headpos;
     struct snakenode* tail;
     int len;
+    int state;
 };
 
-void addSnakeSegment(struct snake* sn, int type, struct snakepartdata data);
+void appendSnakePart(struct snake* sn, int type, struct snakepartdata data);
+void prependSnakePart(struct snake* sn, int type, struct snakepartdata data);
 void removeSnakeSegment(struct snake* sn);
+void updateSnakeState(struct snake* sn);
 void updatePositionWithDirection(struct snake* sn);
 void moveBodyParts(struct snake* sn);
 int configureSnake(int len, struct snake* sn);
-#endif // SNAKE_H
+#endif  // SNAKE_H

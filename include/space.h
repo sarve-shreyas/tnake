@@ -28,6 +28,10 @@ enum BOUNDARY_TYPE {
     NO_BOUNDARY
 };
 
+enum LivingState {
+    LIVE = 1,
+    DEAD = -1
+};
 struct SpaceRepresentationStyle {
     char* str;
     int fgcolor;

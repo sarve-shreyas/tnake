@@ -17,9 +17,9 @@
 struct terminal termi;
 struct objectspace objspace;
 
-#define SNAKE_INIT_LEN 10
-#define GAMEBOARD_INIT_WIDTH 40
-#define GAMEBOARD_INIT_HEIGHT 32
+#define SNAKE_INIT_LEN 5
+#define GAMEBOARD_INIT_WIDTH 5
+#define GAMEBOARD_INIT_HEIGHT 4
 
 void init(void) {
     struct snake* sn = malloc(sizeof(struct snake));
@@ -36,7 +36,16 @@ void init(void) {
 }
 
 void moveSnake(struct snake* sn, struct gameboard board) {
-    translateZigZag(sn, board);
+    switch (sn->state) {
+        case LIVE:
+            translateCyclic(sn, board);
+            break;
+        case DEAD:
+            removeSnakeSegment(sn);
+            break;
+        default:
+            die("moveSnake");
+    }
 }
 
 void snakeDie(struct snake* sn) {
@@ -52,10 +61,12 @@ int main() {
 
     while (objspace.sn->len) {
         progressGamePlay();
-        usleep(50000);
+        usleep(250000);
         moveSnake(objspace.sn, objspace.board);
     }
-    // printObjectSpace(termi, objspace);
+    printf("exited out of loop");
+    progressGamePlay();
+    usleep(250000);
     write(STDOUT_FILENO, "\x1b[?25h", 6);
     return 0;
 }

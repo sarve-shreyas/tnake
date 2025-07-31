@@ -108,7 +108,7 @@ void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace
             int objectSize = getObjectRepresentationOnCordinate(writeBuf, i, j, objspace);
             char buf[128];
             int bytes = snprintf(buf, 128, "\x1b[%d;%dH%s", i, j, writeBuf);
-            abAppend(ab, buf, bytes);
+            write(STDOUT_FILENO, buf, bytes);
             j += (objectSize - 1);
         }
     }
