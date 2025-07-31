@@ -55,15 +55,15 @@ int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspa
     return strlen(style.str);
 }
 
-void printObjectSpace(struct terminal termi, struct objectspace objspace) {
-    write(STDOUT_FILENO, "\x1b[H", 3);
+void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace objspace) {
+    abAppend(ab, "\x1b[H", 3);
     for (int i = 1; i <= termi.row; i++) {
         for (int j = 1; j <= termi.col; j++) {
             char writeBuf[128];
             int objectSize = getObjectRepresentationOnCordinate(writeBuf, i, j, objspace);
             char buf[128];
             int bytes = snprintf(buf, 128, "\x1b[%d;%dH%s", i, j, writeBuf);
-            write(STDOUT_FILENO, buf, bytes);
+            abAppend(ab, buf, bytes);
             j += (objectSize - 1);
         }
     }

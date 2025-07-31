@@ -5,6 +5,7 @@
 #include "gameboard.h"
 #include "snake.h"
 #include "space.h"
+#include "abuffer.h"
 
 struct objectspace {
     struct snake* sn;
@@ -16,5 +17,5 @@ extern struct SpaceRepresentationStyle no_object_style;
 
 int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace);
 
-void printObjectSpace(struct terminal termi, struct objectspace);
+void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace);
 #endif  // OBJECTSPACE_H
