@@ -7,6 +7,7 @@
 #include "abuffer.h"
 #include "ansi.h"
 #include "gameboard.h"
+#include "gameplay.h"
 #include "objectspace.h"
 #include "snake.h"
 #include "space.h"
@@ -17,11 +18,12 @@
 struct terminal termi;
 struct objectspace objspace;
 
-#define SNAKE_INIT_LEN 5
-#define GAMEBOARD_INIT_WIDTH 5
-#define GAMEBOARD_INIT_HEIGHT 4
+#define SNAKE_INIT_LEN 20
+#define GAMEBOARD_INIT_WIDTH 40
+#define GAMEBOARD_INIT_HEIGHT 32
 
 void init(void) {
+    enableRawMode();
     struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
     struct abuf ab = ABUF_INIT;
@@ -35,38 +37,36 @@ void init(void) {
     abFlush(&ab);
 }
 
-void moveSnake(struct snake* sn, struct gameboard board) {
-    switch (sn->state) {
-        case LIVE:
-            translateCyclic(sn, board);
+void moveSnake(struct objectspace* space) {
+    switch (space->sn->state) {
+        case ALIVE:
+            processKeyPressedAction(space);
+            moveBodyParts(space->sn);
+            updatePositionWithDirection(space->sn);
+            updateSnakeState(space->sn);
             break;
         case DEAD:
-            removeSnakeSegment(sn);
+            removeSnakeSegment(space->sn);
             break;
         default:
             die("moveSnake");
     }
 }
-
 void snakeDie(struct snake* sn) {
     removeSnakeSegment(sn);
 }
 void progressGamePlay() {
     struct abuf ab = ABUF_INIT;
     printObjectSpace(&ab, termi, objspace);
-    abFlush(&ab);
 }
 int main() {
     init();
 
     while (objspace.sn->len) {
         progressGamePlay();
-        usleep(250000);
-        moveSnake(objspace.sn, objspace.board);
+        moveSnake(&objspace);
     }
-    printf("exited out of loop");
     progressGamePlay();
-    usleep(250000);
-    write(STDOUT_FILENO, "\x1b[?25h", 6);
+    pexit(0);
     return 0;
 }

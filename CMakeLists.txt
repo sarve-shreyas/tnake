@@ -36,6 +36,8 @@ set(SOURCES
     src/utils.c
     src/abuffer.c
     src/styles.c
+    src/keyboard.c
+    src/gameplay.c
 )
 
 # Header files (for IDE support)
@@ -50,6 +52,9 @@ set(HEADERS
     include/translate.h
     include/abuffer.h
     include/styles.h
+    include/keyboard.h
+    include/gameplay.h
+
 )
 
 # Create executable

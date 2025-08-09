@@ -101,7 +101,7 @@ int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspa
 }
 
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace objspace) {
-    abAppend(ab, "\x1b[H", 3);
+    write(STDIN_FILENO, "\x1b[H", 3);
     for (int i = 1; i <= termi.row; i++) {
         for (int j = 1; j <= termi.col; j++) {
             char writeBuf[128];
