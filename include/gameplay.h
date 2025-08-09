@@ -3,5 +3,5 @@
 #include "objectspace.h"
 
 void processKeyPressedAction(struct objectspace* space);
-
-#endif // GAMEPLAY_H
+void moveSnake(struct objectspace* space);
+#endif  // GAMEPLAY_H

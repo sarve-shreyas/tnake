@@ -44,5 +44,5 @@ struct coordinate {
     int x;
     int y;
 };
-
+int sameCordinates(struct coordinate a, struct coordinate b);
 #endif  // SPACE_H

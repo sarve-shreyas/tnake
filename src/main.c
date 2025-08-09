@@ -39,24 +39,6 @@ void init(void) {
     abFlush(&ab);
 }
 
-void moveSnake(struct objectspace* space) {
-    switch (space->sn->state) {
-        case ALIVE:
-            processKeyPressedAction(space);
-            moveBodyParts(space->sn);
-            updatePositionWithDirection(space->sn);
-            updateSnakeState(space->sn);
-            break;
-        case DEAD:
-            removeSnakeSegment(space->sn);
-            break;
-        default:
-            die("moveSnake");
-    }
-}
-void snakeDie(struct snake* sn) {
-    removeSnakeSegment(sn);
-}
 void progressGamePlay() {
     struct abuf ab = ABUF_INIT;
     printObjectSpace(&ab, termi, objspace);
@@ -66,8 +48,8 @@ int main() {
     init();
 
     while (objspace.sn->len) {
-        progressGamePlay();
         moveSnake(&objspace);
+        progressGamePlay();
     }
     progressGamePlay();
     pexit(0);

@@ -39,6 +39,7 @@ set(SOURCES
     src/keyboard.c
     src/gameplay.c
     src/fruit.c
+    src/space.c
 )
 
 # Header files (for IDE support)
