@@ -23,10 +23,6 @@ void processKeyPressedAction(struct objectspace* space) {
         case EXIT: {
             pexit(0);
         }
-        case UNKNOWN_KEY:
-            // do nothing
-        default:
-            // do nothing
     }
 }
 int assignNewFruit(struct objectspace* space) {

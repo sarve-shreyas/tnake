@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "abuffer.h"
+#include "terminal.h"
 
 void die(const char* message) {
     fprintf(stderr, "Error: %s\n", message);
@@ -14,5 +15,6 @@ void pexit(int code) {
     abAppend(&ab, "\x1b[H", 3);
     abAppend(&ab, "\x1b[?25h", 6);
     abFlush(&ab);
-    return exit(0);
+    disableRawMode();
+    return exit(code);
 }

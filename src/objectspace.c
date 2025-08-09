@@ -69,6 +69,7 @@ struct SpaceRepresentationStyle getBoardBoundrySpaceStyle(int i, int j, struct g
             die("getBoardBoundrySpaceStyle");
             break;
     }
+    return no_object_style;
 }
 
 int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace space) {
