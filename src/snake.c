@@ -149,3 +149,28 @@ void changeSnakeDirection(struct snake* sn, int direction) {
             die("changeSnakeDirection");
     }
 }
+
+struct coordinate* getSnakeCoordinates(struct snake* sn, int* len) {
+    if (!sn || !len) return NULL;
+
+    int n = sn->len;
+    if (n <= 0) {
+        *len = 0;
+        return NULL;
+    }
+
+    struct coordinate* coordinates = malloc((size_t)n * sizeof *coordinates);
+    if (!coordinates) {
+        *len = 0;
+        return NULL;
+    }
+
+    struct snakenode* current = sn->headpos;
+    int i = 0;
+    while (current && i < n) {
+        coordinates[i++] = current->data.coordinate;
+        current = current->nextnode;
+    }
+    *len = i;
+    return coordinates;
+}

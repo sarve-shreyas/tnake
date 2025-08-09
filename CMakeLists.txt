@@ -38,6 +38,7 @@ set(SOURCES
     src/styles.c
     src/keyboard.c
     src/gameplay.c
+    src/fruit.c
 )
 
 # Header files (for IDE support)
@@ -54,6 +55,7 @@ set(HEADERS
     include/styles.h
     include/keyboard.h
     include/gameplay.h
+    include/fruit.h
 
 )
 

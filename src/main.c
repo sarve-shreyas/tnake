@@ -6,6 +6,7 @@
 
 #include "abuffer.h"
 #include "ansi.h"
+#include "fruit.h"
 #include "gameboard.h"
 #include "gameplay.h"
 #include "objectspace.h"
@@ -27,11 +28,12 @@ void init(void) {
     struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
     struct abuf ab = ABUF_INIT;
+    struct fruit* ft = malloc(sizeof(struct fruit));
     if (getWindowSize(&termi.row, &termi.col) == -1) die("getWindowSize");
     if (configureSnake(SNAKE_INIT_LEN, sn) != 0) die("configgureSnake");
     if (configureGameBoard(GAMEBOARD_INIT_HEIGHT, GAMEBOARD_INIT_WIDTH, &board, termi) != 0) die("defineGameBoard");
-    objspace.board = board;
-    objspace.sn = sn;
+    objspace = (struct objectspace){.board = board, .sn = sn};
+    if (initFruit(&objspace) != 0) die("initFruit");
     abAppend(&ab, "\x1b[2J", 4);
     abAppend(&ab, "\x1b[?25l", 6);
     abFlush(&ab);
@@ -58,6 +60,7 @@ void snakeDie(struct snake* sn) {
 void progressGamePlay() {
     struct abuf ab = ABUF_INIT;
     printObjectSpace(&ab, termi, objspace);
+    abFlush(&ab);
 }
 int main() {
     init();

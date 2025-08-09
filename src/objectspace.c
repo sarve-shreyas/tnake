@@ -5,10 +5,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "fruit.h"
+#include "snake.h"
 #include "styles.h"
 #include "utils.h"
 
-int getObjectOnBoard(int i, int j, struct snake* sn) {
+int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
     int snakepart = BOARD_BLOCK;
     struct snakenode* parts = sn->headpos;
     while (parts) {
@@ -17,6 +19,11 @@ int getObjectOnBoard(int i, int j, struct snake* sn) {
             break;
         }
         parts = parts->nextnode;
+    }
+    if (snakepart == BOARD_BLOCK) {
+        if (ft->coordinate.x == i && ft->coordinate.y == j) {
+            return FRUIT;
+        }
     }
     return snakepart;
 }
@@ -41,8 +48,8 @@ int getBoardBoundaryType(int i, int j, struct gameboard board) {
     else
         return NO_BOUNDARY;
 }
+
 struct SpaceRepresentationStyle getBoardBoundrySpaceStyle(int i, int j, struct gameboard board) {
-    char* str;
     switch (getBoardBoundaryType(i, j, board)) {
         case TOP_LEFT_CORNER:
             return gameboard_top_left_style;
@@ -63,16 +70,18 @@ struct SpaceRepresentationStyle getBoardBoundrySpaceStyle(int i, int j, struct g
             break;
     }
 }
+
 int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace space) {
     int object = NONE;
     struct gameboard board = space.board;
     struct snake* sn = space.sn;
+    struct fruit* ft = space.fruit;
     struct SpaceRepresentationStyle style;
 
     if (i >= board.top_left.x && j >= board.top_left.y && i <= board.bottom_right.x && j <= board.bottom_right.y) {
         object = BOARD_BLOCK;
         if ((j - board.top_left.y) % 2 == 0)
-            object = getObjectOnBoard((i - board.top_left.x), (j - board.top_left.y) / 2, sn);
+            object = getObjectOnBoard((i - board.top_left.x), (j - board.top_left.y) / 2, sn, ft);
     } else if (getBoardBoundaryType(i, j, board) != NO_BOUNDARY) {
         object = BOARD_BOUNDRY;
     }
@@ -89,6 +98,9 @@ int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspa
         case BOARD_BOUNDRY:
             style = getBoardBoundrySpaceStyle(i, j, board);
             break;
+        case FRUIT:
+            style = fruit_block_style;
+            break;
         case NONE:
             style = no_object_style;
             break;
@@ -101,7 +113,7 @@ int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspa
 }
 
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace objspace) {
-    write(STDIN_FILENO, "\x1b[H", 3);
+    abAppend(ab, "\x1b[H", 3);
     for (int i = 1; i <= termi.row; i++) {
         for (int j = 1; j <= termi.col; j++) {
             char writeBuf[128];
@@ -112,4 +124,25 @@ void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace
             j += (objectSize - 1);
         }
     }
+}
+
+int initFruit(struct objectspace* space) {
+    if (!space || !space->sn) return -1;
+
+    int occ_len = 0;
+    struct coordinate* occ = getSnakeCoordinates(space->sn, &occ_len);
+    if (space->sn->len > 0 && !occ) return -1;
+    struct fruit* ft = malloc(sizeof *ft);
+    if (!ft) {
+        free(occ);
+        return -1;
+    }
+    if (getNewFruitCoordinates(space->board.height, space->board.width, occ, occ_len, ft) != 0) {
+        free(occ);
+        free(ft);
+        return -1;
+    }
+    space->fruit = ft;
+    free(occ);
+    return 0;
 }

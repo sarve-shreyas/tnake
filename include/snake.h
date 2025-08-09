@@ -30,4 +30,5 @@ void updatePositionWithDirection(struct snake* sn);
 void moveBodyParts(struct snake* sn);
 int configureSnake(int len, struct snake* sn);
 void changeSnakeDirection(struct snake* sn, int direction);
+struct coordinate* getSnakeCoordinates(struct snake* sn, int* len);
 #endif  // SNAKE_H

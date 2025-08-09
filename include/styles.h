@@ -18,4 +18,7 @@ extern const struct SpaceRepresentationStyle gameboard_bottom_left_style;
 extern const struct SpaceRepresentationStyle gameboard_bottom_right_style;
 extern const struct SpaceRepresentationStyle gameboard_horizontal_style;
 extern const struct SpaceRepresentationStyle gameboard_vertical_style;
+
+// Fruit
+extern const struct SpaceRepresentationStyle fruit_block_style;
 #endif // STYLES_H
