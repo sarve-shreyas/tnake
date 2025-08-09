@@ -53,16 +53,16 @@ void removeSnakeSegment(struct snake* sn) {
 
 void updatePositionWithDirection(struct snake* sn) {
     switch (sn->headpos->data.direction) {
-        case RIGHT:
+        case DIRECTION_RIGHT:
             sn->headpos->data.coordinate.y += 1;
             break;
-        case UP:
+        case DIRECTION_UP:
             sn->headpos->data.coordinate.x -= 1;
             break;
-        case LEFT:
+        case DIRECTION_LEFT:
             sn->headpos->data.coordinate.y -= 1;
             break;
-        case DOWN:
+        case DIRECTION_DOWN:
             sn->headpos->data.coordinate.x += 1;
             break;
         default:
@@ -103,11 +103,11 @@ int configureSnake(int len, struct snake* sn) {
     sn->len = 0;
     sn->headpos = NULL;
     sn->tail = NULL;
-    sn->state = LIVE;
-    struct snakepartdata head_data = {RIGHT, {0, 0}};
+    sn->state = ALIVE;
+    struct snakepartdata head_data = {DIRECTION_RIGHT, {0, 0}};
     appendSnakePart(sn, HEAD, head_data);
     for (int i = len - 2; i >= 0; i--) {
-        struct snakepartdata body_data = {RIGHT, {0, -1}};
+        struct snakepartdata body_data = {DIRECTION_RIGHT, {0, -1}};
         appendSnakePart(sn, BODY_PART, body_data);
     }
     return 0;
@@ -124,5 +124,28 @@ void updateSnakeState(struct snake* sn) {
             break;
         }
         nextnode = nextnode->nextnode;
+    }
+}
+
+void changeSnakeDirection(struct snake* sn, int direction) {
+    switch (direction) {
+        case DIRECTION_DOWN:
+            if (sn->headpos->data.direction != DIRECTION_UP)
+                sn->headpos->data.direction = DIRECTION_DOWN;
+            break;
+        case DIRECTION_LEFT:
+            if (sn->headpos->data.direction != DIRECTION_RIGHT)
+                sn->headpos->data.direction = DIRECTION_LEFT;
+            break;
+        case DIRECTION_UP:
+            if (sn->headpos->data.direction != DIRECTION_DOWN)
+                sn->headpos->data.direction = DIRECTION_UP;
+            break;
+        case DIRECTION_RIGHT:
+            if (sn->headpos->data.direction != DIRECTION_LEFT)
+                sn->headpos->data.direction = DIRECTION_RIGHT;
+            break;
+        default:
+            die("changeSnakeDirection");
     }
 }

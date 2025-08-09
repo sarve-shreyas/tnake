@@ -10,10 +10,10 @@ enum SpaceComponent {
 };
 
 enum Direction {
-    UP = 10,
-    RIGHT = 1,
-    DOWN = 11,
-    LEFT = -1,
+    DIRECTION_UP = 10,
+    DIRECTION_RIGHT = 1,
+    DIRECTION_DOWN = 11,
+    DIRECTION_LEFT = -1,
 };
 
 enum BOUNDARY_TYPE {
@@ -29,7 +29,7 @@ enum BOUNDARY_TYPE {
 };
 
 enum LivingState {
-    LIVE = 1,
+    ALIVE = 1,
     DEAD = -1
 };
 struct SpaceRepresentationStyle {
