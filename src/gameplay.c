@@ -43,7 +43,7 @@ int assignNewFruit(struct objectspace* space) {
     return 0;
 }
 int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
-    if (sn->state == DEAD) return;
+    if (sn->state == DEAD) return 1;
     struct coordinate head = sn->headpos->data.coordinate;
     if (head.x < 0 || head.y < 0 || head.x >= board.height || head.y >= board.width) {
         sn->state = DEAD;
