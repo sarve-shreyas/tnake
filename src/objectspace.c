@@ -6,9 +6,11 @@
 #include <unistd.h>
 
 #include "fruit.h"
+#include "logger.h"
 #include "snake.h"
 #include "styles.h"
 #include "utils.h"
+#include "digitaldisplay.h"
 
 int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
     int snakepart = BOARD_BLOCK;
@@ -72,13 +74,12 @@ struct SpaceRepresentationStyle getBoardBoundrySpaceStyle(int i, int j, struct g
     return no_object_style;
 }
 
-int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace space) {
+struct SpaceRepresentationStyle getObjectRepresentationOnCordinate(int i, int j, struct objectspace space) {
     int object = NONE;
     struct gameboard board = space.board;
     struct snake* sn = space.sn;
     struct fruit* ft = space.fruit;
     struct SpaceRepresentationStyle style;
-
     if (i >= board.top_left.x && j >= board.top_left.y && i <= board.bottom_right.x && j <= board.bottom_right.y) {
         object = BOARD_BLOCK;
         if ((j - board.top_left.y) % 2 == 0)
@@ -109,22 +110,82 @@ int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspa
             die("error invalid snake part");
             break;
     }
-    strcpy(buf, colorStr(style.str, style.bgcolor, style.fgcolor));
-    return style.len;
+    return style;
 }
 
+struct SpaceRepresentationStyle getRepresentationStyle(int i, int j, int object, struct objectspace space) {
+    switch (object) {
+        case HEAD:
+            return snake_head_style;
+        case BODY_PART:
+            return snake_body_style;
+        case BOARD_BLOCK:
+            return gameboard_block_style;
+        case BOARD_BOUNDRY:
+            return getBoardBoundrySpaceStyle(i, j, space.board);
+        case FRUIT:
+            return fruit_block_style;
+        case NONE:
+            return no_object_style;
+        default:
+            die("error invalid snake part");
+            break;
+    }
+    return no_object_style;
+}
+
+void printStyleAt(struct abuf* ab, int x, int y, struct SpaceRepresentationStyle style) {
+    char buf[128];
+    int bytes = snprintf(buf, 128, "\x1b[%d;%dH%s", x, y, colorStr(style.str, style.bgcolor, style.fgcolor));
+    abAppend(ab, buf, bytes);
+}
+
+void printAt(int x, int y, char* val) {
+    char buffer[128];
+    int bytes = snprintf(buffer, 128, "\x1b[%d;%dH%s", x, y, val);
+    write(STDOUT_FILENO, buffer, bytes);
+}
+
+void printDigit(struct abuf* ab, int x, int y, int digit) {
+    int inc_x = 0;
+    int inc_y = 0;
+    int repr = get_digi_repr(digit);
+    for (int i = 0; i < BITS_SIZE; i++) {
+        if (i % DISPLAY_COLS == 0) {
+            inc_x++;
+            inc_y = 0;
+        }
+        if (repr & (1 << i)) {
+            struct SpaceRepresentationStyle style = digital_display_set_style;
+            printStyleAt(ab, x + inc_x, y + style.len * inc_y, style);
+        }
+        inc_y++;
+    }
+}
+
+void printScore(struct abuf* ab, struct objectspace space) {
+    struct gameboard board = space.board;
+    int score = space.sn->len;
+    char buffer[100];
+    int written = snprintf(buffer, 100, "%d", score);
+    int x = board.bottom_left.x + 2;
+    int y = (board.bottom_left.y + board.bottom_right.y) / 2;
+    for (int i = 0; i < written; i++) {
+        printDigit(ab, x, y + 7 * i, buffer[i]);
+    }
+}
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace objspace) {
     abAppend(ab, "\x1b[H", 3);
     for (int i = 1; i <= termi.row; i++) {
         for (int j = 1; j <= termi.col; j++) {
             char writeBuf[128];
-            int objectSize = getObjectRepresentationOnCordinate(writeBuf, i, j, objspace);
-            char buf[128];
-            int bytes = snprintf(buf, 128, "\x1b[%d;%dH%s", i, j, writeBuf);
-            write(STDOUT_FILENO, buf, bytes);
-            j += (objectSize - 1);
+            struct SpaceRepresentationStyle objectStyle = getObjectRepresentationOnCordinate(i, j, objspace);
+            printStyleAt(ab, i, j, objectStyle);
+            int objectSize = objectStyle.len;
+            if (objectSize) j += (objectSize - 1);
         }
     }
+    printScore(ab, objspace);
 }
 
 int initFruit(struct objectspace* space) {

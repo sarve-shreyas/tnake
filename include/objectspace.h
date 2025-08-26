@@ -1,12 +1,12 @@
 #ifndef OBJECTSPACE_H
 #define OBJECTSPACE_H
 
+#include "abuffer.h"
 #include "ansi.h"
+#include "fruit.h"
 #include "gameboard.h"
 #include "snake.h"
 #include "space.h"
-#include "abuffer.h"
-#include "fruit.h"
 
 struct objectspace {
     struct snake* sn;
@@ -14,7 +14,6 @@ struct objectspace {
     struct fruit* fruit;
 };
 
-int getObjectRepresentationOnCordinate(char* buf, int i, int j, struct objectspace);
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace);
 int initFruit(struct objectspace* space);
 #endif  // OBJECTSPACE_H

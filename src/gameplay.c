@@ -25,6 +25,7 @@ void processKeyPressedAction(struct objectspace* space) {
         }
     }
 }
+
 int assignNewFruit(struct objectspace* space) {
     if (!space || !space->sn) return -1;
     int occ_len = 0;
@@ -38,6 +39,7 @@ int assignNewFruit(struct objectspace* space) {
     free(occ);
     return 0;
 }
+
 int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     if (sn->state == DEAD) return 1;
     struct coordinate head = sn->headpos->data.coordinate;
@@ -47,6 +49,7 @@ int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     }
     return 0;
 }
+
 void checkIfFruitConsumed(struct objectspace* space) {
     struct snake* sn = space->sn;
     struct fruit* ft = space->fruit;
@@ -56,6 +59,7 @@ void checkIfFruitConsumed(struct objectspace* space) {
         assignNewFruit(space);
     }
 }
+
 void moveSnake(struct objectspace* space) {
     switch (space->sn->state) {
         case ALIVE:

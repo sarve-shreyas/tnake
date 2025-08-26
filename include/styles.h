@@ -21,4 +21,9 @@ extern const struct SpaceRepresentationStyle gameboard_vertical_style;
 
 // Fruit
 extern const struct SpaceRepresentationStyle fruit_block_style;
+
+// Digital Display
+extern const struct SpaceRepresentationStyle digital_display_set_style;
+extern const struct SpaceRepresentationStyle digital_display_uset_style;
+
 #endif // STYLES_H

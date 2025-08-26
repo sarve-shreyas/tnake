@@ -9,16 +9,20 @@
 #define GAMEBOARD_BOTTOM_RIGHT "┘"
 #define GAMEBOARD_HORIZONTAL "─"
 #define GAMEBOARD_VERTICAL "│"
-#define GAMEBOARD_BLOCK "**"
+#define GAMEBOARD_BLOCK "* "
 // No Object
 #define NO_OBJECT " "
 
 // Snake
-#define SNAKE_HEAD ":)"
+#define SNAKE_HEAD "  "
 #define SNAKE_BODY_PART "  "
 
 // Fruit
 #define FRUIT_BLOCK "  "
+
+// Digital Display 
+#define DIGITAL_DISPLAY_SET "  "
+#define DIGITAL_DISPLAY_USET "  "
 
 // No object space styling
 const struct SpaceRepresentationStyle no_object_style = {.str = NO_OBJECT, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_BLACK, .len = 1};
@@ -39,3 +43,6 @@ const struct SpaceRepresentationStyle gameboard_vertical_style = {.str = GAMEBOA
 // Fruit
 const struct SpaceRepresentationStyle fruit_block_style = {.str = FRUIT_BLOCK, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_BLUE, .len = 2};
 
+// Digital Display
+const struct SpaceRepresentationStyle digital_display_set_style = {.str = DIGITAL_DISPLAY_SET, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_GREEN, .len = 2};
+const struct SpaceRepresentationStyle digital_display_uset_style = {.str = DIGITAL_DISPLAY_USET, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_BLACK, .len = 2};

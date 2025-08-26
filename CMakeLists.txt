@@ -40,6 +40,8 @@ set(SOURCES
     src/gameplay.c
     src/fruit.c
     src/space.c
+    logger/logger.c
+    src/digitaldisplay.c
 )
 
 # Header files (for IDE support)
@@ -57,14 +59,15 @@ set(HEADERS
     include/keyboard.h
     include/gameplay.h
     include/fruit.h
-
+    logger/logger.h
+    include/digitaldisplay.h
 )
 
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # Add include directories
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE include logger)
 
 # Add debug-specific compiler flags for better debugging
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
