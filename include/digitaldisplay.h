@@ -18,5 +18,5 @@ extern const int DISPLAY_ROWS;
 extern const int DISPLAY_COLS;
 extern const int BITS_SIZE;
 
-int get_digi_repr(int dig);
+int** get_digi_repr(char d, int* row, int* cols);
 #endif

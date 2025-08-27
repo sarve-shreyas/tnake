@@ -1,167 +1,319 @@
 
 
+#include "digitaldisplay.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-const int DISPLAY_ROWS = 5;
-const int DISPLAY_COLS = 3;
+const int DISPLAY_ROWS = 6;
+const int DISPLAY_COLS = 6;
 const int BITS_SIZE = DISPLAY_COLS * DISPLAY_ROWS;
 
-int get_digi_repr(int dig) {
-    int* setbits = malloc(BITS_SIZE * sizeof(int));
-    int size = 0;
+const char* capsAlphabets[26][DISPLAY_ROWS] = {
+    {"  ##  ",
+     " #  # ",
+     "#    #",
+     "######",
+     "#    #",
+     "#    #"},
+    {"##### ",
+     "#    #",
+     "##### ",
+     "#    #",
+     "#    #",
+     "##### "},
+    {" #### ",
+     "#    #",
+     "#     ",
+     "#     ",
+     "#    #",
+     " #### "},
+    {"##### ",
+     "#    #",
+     "#    #",
+     "#    #",
+     "#    #",
+     "##### "},
+    {"######",
+     "#     ",
+     "###   ",
+     "#     ",
+     "#     ",
+     "######"},
+    {"######",
+     "#     ",
+     "#     ",
+     "####  ",
+     "#     ",
+     "#     "},
+    {" #####",
+     "#     ",
+     "#     ",
+     "#   ##",
+     "#    #",
+     " #####"},
+    {"#    #",
+     "#    #",
+     "#    #",
+     "######",
+     "#    #",
+     "#    #"},
+    {"######",
+     "   #  ",
+     "   #  ",
+     "   #  ",
+     "   #  ",
+     "######"},
+    {"######",
+     "   #  ",
+     "   #  ",
+     "#  #  ",
+     "#  #  ",
+     " ##   "},
+    {"#   # ",
+     "#   # ",
+     "#  #  ",
+     "###   ",
+     "#  #  ",
+     "#   # "},
+    {"#     ",
+     "#     ",
+     "#     ",
+     "#     ",
+     "#     ",
+     "######"},
+    {"#    #",
+     "##  ##",
+     "# ## #",
+     "#    #",
+     "#    #",
+     "#    #"},
+    {"#    #",
+     "##   #",
+     "# #  #",
+     "#  # #",
+     "#   ##",
+     "#    #"},
+    {"  ##  ",
+     " #  # ",
+     "#    #",
+     "#    #",
+     "#    #",
+     " #### "},
+    {"##### ",
+     "#    #",
+     "#    #",
+     "##### ",
+     "#     ",
+     "#     "},
+    {" ###  ",
+     "#   # ",
+     "#   # ",
+     "# # # ",
+     "#  ## ",
+     " ## ##"},
+    {"##### ",
+     "#    #",
+     "#    #",
+     "##### ",
+     "# #   ",
+     "#  ###"},
+    {" #### ",
+     "#    #",
+     "#     ",
+     " #### ",
+     "     #",
+     "##### "},
+    {"######",
+     "   #  ",
+     "   #  ",
+     "   #  ",
+     "   #  ",
+     "   #  "},
+    {"#    #",
+     "#    #",
+     "#    #",
+     "#    #",
+     "#    #",
+     " #### "},
+    {"#    #",
+     "#    #",
+     "#    #",
+     "# ## #",
+     "##  ##",
+     "#    #"},
+    {"#    #",
+     " #  # ",
+     "  ##  ",
+     "  ##  ",
+     " #  # ",
+     "#    #"},
+    {"#    #",
+     " #  # ",
+     "  ##  ",
+     "   #  ",
+     "   #  ",
+     "   #  "},
+    {"######",
+     "    # ",
+     "   #  ",
+     "  #   ",
+     " #    ",
+     "######"}};
 
-    switch (dig) {
-        case '0':
-        case 0: {
-            /*
-                ######
-                ##  ##
-                ##  ##
-                ##  ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '1':
-        case 1: {
-            /*
-                  ##
-                  ##
-                  ##
-                  ##
-                ######
-            */
-            int temp[] = {1, 4, 7, 10, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '2':
-        case 2: {
-            /*
-                ######
-                    ##
-                ######
-                ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 5, 6, 7, 8, 9, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '3':
-        case 3: {
-            /*
-                ######
-                    ##
-                ######
-                    ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 5, 6, 7, 8, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '4':
-        case 4: {
-            /*
-                ##  ##
-                ##  ##
-                ######
-                    ##
-                    ##
-            */
-            int temp[] = {0, 3, 6, 7, 8, 2, 5, 8, 11, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '5':
-        case 5: {
-            /*
-                ######
-                ##
-                ######
-                    ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 3, 6, 7, 8, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '6':
-        case 6: {
-            /*
-                ######
-                ##
-                ######
-                ##  ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 3, 6, 7, 8, 9, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '7':
-        case 7: {
-            /*
-                ######
-                    ##
-                    ##
-                    ##
-                    ##
-            */
-            int temp[] = {0, 1, 2, 5, 8, 11, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '8':
-        case 8: {
-            /*
-                ######
-                ##  ##
-                ######
-                ##  ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        case '9':
-        case 9: {
-            /*
-                ######
-                ##  ##
-                ######
-                    ##
-                ######
-            */
-            int temp[] = {0, 1, 2, 3, 5, 6, 7, 8, 11, 12, 13, 14};
-            size = sizeof(temp) / sizeof(temp[0]);
-            memcpy(setbits, temp, size * sizeof(int));
-            break;
-        }
-        default:
-            free(setbits);
-            return -1;
+const char* digits[10][DISPLAY_ROWS] = {
+    {// 0
+     " #### ",
+     "#    #",
+     "#    #",
+     "#    #",
+     "#    #",
+     " #### "},
+    {// 1
+     "   #  ",
+     "  ##  ",
+     "   #  ",
+     "   #  ",
+     "   #  ",
+     " #####"},
+    {// 2
+     " #### ",
+     "#   # ",
+     "    # ",
+     " ###  ",
+     "#     ",
+     "##### "},
+    {// 3
+     "######",
+     "     #",
+     " #####",
+     "     #",
+     "     #",
+     "######"},
+    {// 4
+     "#   # ",
+     "#   # ",
+     "#   # ",
+     "######",
+     "    # ",
+     "    # "},
+    {// 5
+     " #### ",
+     "#     ",
+     " #### ",
+     "     #",
+     "     #",
+     " #####"},
+    {// 6
+     " #### ",
+     "#     ",
+     "#####  ",
+     "#    #",
+     "#    #",
+     " #### "},
+    {// 7
+     "##### ",
+     "    # ",
+     "   #  ",
+     "  #   ",
+     " #    ",
+     " #    "},
+    {// 8
+     " #### ",
+     "#    #",
+     " #### ",
+     "#    #",
+     "#    #",
+     " #### "},
+    {// 9
+     " #### ",
+     "#    #",
+     "#    #",
+     " #####",
+     "     #",
+     " #### "}};
+
+const char* specialChars[4][DISPLAY_ROWS] = {
+    {"      ",
+     "      ",
+     " #### ",
+     "      ",
+     "      ",
+     "      "},
+    {"      ",
+     "      ",
+     "      ",
+     "      ",
+     "      ",
+     "      "},
+    {"      ",
+     "      ",
+     " #### ",
+     "      ",
+     " #### ",
+     "      "},
+    {"  ##  ",
+     "  ##  ",
+     "######",
+     "######",
+     "  ##  ",
+     "  ##  "},
+};
+
+enum AlphanumericType {
+    ALPHABET,
+    DIGIT,
+    SPECIALS,
+    NONE
+};
+
+int getAlphanumericTyle(char d) {
+    if (d >= '0' && d <= '9') return DIGIT;
+    if (d >= 'A' && d <= 'Z') return ALPHABET;
+    if (d == '-' || d == '+' || d == ' ' || d == '=') return SPECIALS;
+    return NONE;
+}
+
+const char** getArray(int d) {
+    int aplphaType = getAlphanumericTyle(d);
+    if (aplphaType == NONE) {
+        return NULL;
     }
-    int bit_rep = 0;
-    for (int i = 0; i < size; i++) {
-        if (setbits[i] >= BITS_SIZE) continue;
-        int shiftBit = 1 << setbits[i];
-        bit_rep |= shiftBit;
+    if (aplphaType == SPECIALS) {
+        switch (d) {
+            case '-':
+                return specialChars[0];
+            case ' ':
+                return specialChars[1];
+            case '=':
+                return specialChars[2];
+            case '+':
+                return specialChars[3];
+            default:
+                return NULL;
+        }
     }
-    return bit_rep;
+    return aplphaType == DIGIT ? digits[d - '0'] : capsAlphabets[d - 'A'];
+}
+
+int** get_digi_repr(char d, int* row, int* cols) {
+    *row = DISPLAY_ROWS;
+    *cols = DISPLAY_COLS;
+    int** arr = malloc(DISPLAY_ROWS * (sizeof(int*)));
+    const char** aplanum = getArray(d);
+    if (aplanum == NULL) return NULL;
+
+    for (int i = 0; i < DISPLAY_ROWS; i++) {
+        const char* line = aplanum[i];
+        arr[i] = malloc(DISPLAY_COLS * (sizeof(int)));
+        for (int j = 0; j < DISPLAY_COLS; j++) {
+            if (line[j] == '#') {
+                arr[i][j] = 1;
+            } else {
+                arr[i][j] = 0;
+            }
+        }
+    }
+    return arr;
 }
