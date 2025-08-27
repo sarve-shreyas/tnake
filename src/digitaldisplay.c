@@ -158,10 +158,10 @@ int get_digi_repr(int dig) {
             return -1;
     }
     int bit_rep = 0;
-    for (int i = 0; i < BITS_SIZE; i++) {
+    for (int i = 0; i < size; i++) {
         if (setbits[i] >= BITS_SIZE) continue;
-        bit_rep |= (1 << setbits[i]);
+        int shiftBit = 1 << setbits[i];
+        bit_rep |= shiftBit;
     }
     return bit_rep;
 }
-

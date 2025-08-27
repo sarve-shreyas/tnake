@@ -1,6 +1,7 @@
 #include "gameplay.h"
 
 #include "keyboard.h"
+#include "logger.h"
 #include "snake.h"
 #include "space.h"
 #include "utils.h"
@@ -29,14 +30,17 @@ void processKeyPressedAction(struct objectspace* space) {
 int assignNewFruit(struct objectspace* space) {
     if (!space || !space->sn) return -1;
     int occ_len = 0;
+    info("Assigning new fruit for gameplay");
     struct coordinate* occ = getSnakeCoordinates(space->sn, &occ_len);
     if (space->sn->len > 0 && !occ) return -1;
     if (getNewFruitCoordinates(space->board.height, space->board.width, occ, occ_len, space->fruit) != 0) {
         free(occ);
+        error("Assigning new fruit failled killing the process");
         die("assignNewFruit");
         return -1;
     }
     free(occ);
+    info("New fruit assigned for gameplay at {%d, %d}", space->fruit->coordinate.x, space->fruit->coordinate.y);
     return 0;
 }
 
@@ -45,6 +49,7 @@ int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     struct coordinate head = sn->headpos->data.coordinate;
     if (head.x < 0 || head.y < 0 || head.x >= board.height || head.y >= board.width) {
         sn->state = DEAD;
+        info("Snake hit the boundary killing snake & changing snake state to %d", sn->state);
         return 1;
     }
     return 0;
@@ -56,6 +61,7 @@ void checkIfFruitConsumed(struct objectspace* space) {
     if (sameCordinates(sn->headpos->data.coordinate, ft->coordinate)) {
         struct snakepartdata part = sn->tail->data;
         appendSnakePart(sn, BODY_PART, part);
+        info("Snake consumed the fruit at {%d, %d}", ft->coordinate.x, ft->coordinate.y);
         assignNewFruit(space);
     }
 }

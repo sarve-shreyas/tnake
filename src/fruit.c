@@ -5,7 +5,7 @@
 
 #include "styles.h"
 
-#define RANDOM_ITERATIONS 100
+#define RANDOM_ITERATIONS 1 << 15
 struct coordinate getNewCordinates(int height, int width) {
     srand(time(NULL));
     int i = rand() % height;
@@ -35,4 +35,3 @@ int getNewFruitCoordinates(int height, int width, struct coordinate* occupied, i
     ft->displayState = SHOW_FRUIT;
     return 0;
 }
-

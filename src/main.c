@@ -9,6 +9,7 @@
 #include "fruit.h"
 #include "gameboard.h"
 #include "gameplay.h"
+#include "logger.h"
 #include "objectspace.h"
 #include "snake.h"
 #include "space.h"
@@ -28,7 +29,6 @@ void init(void) {
     struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
     struct abuf ab = ABUF_INIT;
-    struct fruit* ft = malloc(sizeof(struct fruit));
     if (getWindowSize(&termi.row, &termi.col) == -1) die("getWindowSize");
     if (configureSnake(SNAKE_INIT_LEN, sn) != 0) die("configgureSnake");
     if (configureGameBoard(GAMEBOARD_INIT_HEIGHT, GAMEBOARD_INIT_WIDTH, &board, termi) != 0) die("defineGameBoard");
@@ -46,12 +46,12 @@ void progressGamePlay() {
 }
 int main() {
     init();
-
     while (objspace.sn->len) {
         moveSnake(&objspace);
         progressGamePlay();
     }
     progressGamePlay();
     pexit(0);
+    // printf("score %s, len %d", objspace.scoreboard->style.str, objspace.scoreboard->style.len);
     return 0;
 }
