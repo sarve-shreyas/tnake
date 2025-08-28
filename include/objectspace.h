@@ -13,7 +13,12 @@ struct objectspace {
     struct gameboard board;
     struct fruit* fruit;
 };
+typedef struct {
+    int snake_init_len;
+    int gameboard_width;
+    int gameboard_height;
+} objectspaceconfigs;
 
 void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace);
-int initFruit(struct objectspace* space);
+int initObjectSpace(struct objectspace* space, struct terminal termi, objectspaceconfigs configs);
 #endif  // OBJECTSPACE_H

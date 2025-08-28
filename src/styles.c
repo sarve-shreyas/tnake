@@ -46,3 +46,43 @@ const struct SpaceRepresentationStyle fruit_block_style = {.str = FRUIT_BLOCK, .
 // Digital Display
 const struct SpaceRepresentationStyle digital_display_set_style = {.str = DIGITAL_DISPLAY_SET, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_GREEN, .len = 1};
 const struct SpaceRepresentationStyle digital_display_uset_style = {.str = DIGITAL_DISPLAY_USET, .fgcolor = ANSI_COLOR_FG_WHITE, .bgcolor = ANSI_COLOR_BG_BLACK, .len = 1};
+
+struct SpaceRepresentationStyle getBoundrySpaceStyle(int boundry_type) {
+    switch (boundry_type) {
+        case TOP_LEFT_CORNER:
+            return gameboard_top_left_style;
+        case TOP_RIGHT_CORNER:
+            return gameboard_top_right_style;
+        case BOTTOM_RIGHT_CORNER:
+            return gameboard_bottom_right_style;
+        case BOTTOM_LEFT_CORNER:
+            return gameboard_bottom_left_style;
+        case TOP:
+        case BOTTOM:
+            return gameboard_horizontal_style;
+        case LEFT_BOUNDARY:
+        case RIGHT_BOUNDARY:
+            return gameboard_vertical_style;
+        default:
+            return no_object_style;
+    }
+    return no_object_style;
+}
+
+struct SpaceRepresentationStyle getRepresentationStyle(int object) {
+    switch (object) {
+        case HEAD:
+            return snake_head_style;
+        case BODY_PART:
+            return snake_body_style;
+        case BOARD_BLOCK:
+            return gameboard_block_style;
+        case FRUIT:
+            return fruit_block_style;
+        case NONE:
+            return no_object_style;
+        default:
+            return no_object_style;
+    }
+    return no_object_style;
+}

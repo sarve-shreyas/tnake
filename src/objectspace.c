@@ -12,6 +12,48 @@
 #include "styles.h"
 #include "utils.h"
 
+int initFruit(struct objectspace* space) {
+    if (!space || !space->sn) return -1;
+
+    int occ_len = 0;
+    struct coordinate* occ = getSnakeCoordinates(space->sn, &occ_len);
+    if (space->sn->len > 0 && !occ) return -1;
+    struct fruit* ft = malloc(sizeof *ft);
+    if (!ft) {
+        free(occ);
+        return -1;
+    }
+    if (getNewFruitCoordinates(space->board.height, space->board.width, occ, occ_len, ft) != 0) {
+        free(occ);
+        free(ft);
+        return -1;
+    }
+    space->fruit = ft;
+    free(occ);
+    return 0;
+}
+
+int initObjectSpace(struct objectspace* space, struct terminal termi, objectspaceconfigs configs) {
+    struct snake* sn = malloc(sizeof(struct snake));
+    struct gameboard board;
+    if (configureSnake(configs.snake_init_len, sn) != 0) {
+        error("[configureSnake] Error while configuring snake returning -1");
+        return -1;
+    }
+    if (configureGameBoard(configs.gameboard_height, configs.gameboard_width, &board, termi) != 0) {
+        error("[configureGameBoard] Error while configuring gameboard returning -1");
+        return -1;
+    };
+    space->board = board;
+    space->sn = sn;
+    if (initFruit(space) != 0) {
+        error("[initFruit] Error while initialising fruit returning -1");
+        return -1;
+    }
+    info("Initialising objectspace success");
+    return 0;
+}
+
 int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
     int snakepart = BOARD_BLOCK;
     struct snakenode* parts = sn->headpos;
@@ -28,69 +70,6 @@ int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
         }
     }
     return snakepart;
-}
-
-int getBoardBoundaryType(int i, int j, struct gameboard board) {
-    if (i == board.top_left.x - 1 && j == board.top_left.y - 1)
-        return TOP_LEFT_CORNER;
-    else if (i == board.top_left.x - 1 && j == board.bottom_right.y + 1)
-        return TOP_RIGHT_CORNER;
-    else if (i == board.bottom_right.x + 1 && j == board.top_left.y - 1)
-        return BOTTOM_LEFT_CORNER;
-    else if (i == board.bottom_right.x + 1 && j == board.bottom_right.y + 1)
-        return BOTTOM_RIGHT_CORNER;
-    else if (i == board.top_left.x - 1 && j >= board.top_left.y && j <= board.bottom_right.y)
-        return TOP;
-    else if (i == board.bottom_right.x + 1 && j >= board.top_left.y && j <= board.bottom_right.y)
-        return BOTTOM;
-    else if (j == board.top_left.y - 1 && i >= board.top_left.x && i <= board.bottom_right.x)
-        return LEFT_BOUNDARY;
-    else if (j == board.bottom_right.y + 1 && i >= board.top_left.x && i <= board.bottom_right.x)
-        return RIGHT_BOUNDARY;
-    else
-        return NO_BOUNDARY;
-}
-
-struct SpaceRepresentationStyle getBoardBoundrySpaceStyle(int i, int j, struct gameboard board) {
-    switch (getBoardBoundaryType(i, j, board)) {
-        case TOP_LEFT_CORNER:
-            return gameboard_top_left_style;
-        case TOP_RIGHT_CORNER:
-            return gameboard_top_right_style;
-        case BOTTOM_RIGHT_CORNER:
-            return gameboard_bottom_right_style;
-        case BOTTOM_LEFT_CORNER:
-            return gameboard_bottom_left_style;
-        case TOP:
-        case BOTTOM:
-            return gameboard_horizontal_style;
-        case LEFT_BOUNDARY:
-        case RIGHT_BOUNDARY:
-            return gameboard_vertical_style;
-        default:
-            die("getBoardBoundrySpaceStyle");
-            break;
-    }
-    return no_object_style;
-}
-
-struct SpaceRepresentationStyle getRepresentationStyle(int i, int j, int object) {
-    switch (object) {
-        case HEAD:
-            return snake_head_style;
-        case BODY_PART:
-            return snake_body_style;
-        case BOARD_BLOCK:
-            return gameboard_block_style;
-        case FRUIT:
-            return fruit_block_style;
-        case NONE:
-            return no_object_style;
-        default:
-            die("error invalid snake part");
-            break;
-    }
-    return no_object_style;
 }
 
 void clearScreen(struct abuf* ab) {
@@ -114,7 +93,7 @@ void printGameboard(struct abuf* ab, struct objectspace space) {
             } else {
                 objectType = getObjectOnBoard((i - board.top_left.x), (j - board.top_left.y) / 2, space.sn, space.fruit);
             }
-            struct SpaceRepresentationStyle style = objectType == BOARD_BOUNDRY ? getBoardBoundrySpaceStyle(i, j, space.board) : getRepresentationStyle(i, j, objectType);
+            struct SpaceRepresentationStyle style = objectType == BOARD_BOUNDRY ? getBoundrySpaceStyle(getBoardBoundaryType(i, j, board)) : getRepresentationStyle(objectType);
             printStyleAt(ab, i, j, style);
             j += (style.len - 1);
         }
@@ -153,25 +132,4 @@ void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace
     clearScreen(ab);
     printGameboard(ab, objspace);
     printScore(ab, objspace);
-}
-
-int initFruit(struct objectspace* space) {
-    if (!space || !space->sn) return -1;
-
-    int occ_len = 0;
-    struct coordinate* occ = getSnakeCoordinates(space->sn, &occ_len);
-    if (space->sn->len > 0 && !occ) return -1;
-    struct fruit* ft = malloc(sizeof *ft);
-    if (!ft) {
-        free(occ);
-        return -1;
-    }
-    if (getNewFruitCoordinates(space->board.height, space->board.width, occ, occ_len, ft) != 0) {
-        free(occ);
-        free(ft);
-        return -1;
-    }
-    space->fruit = ft;
-    free(occ);
-    return 0;
 }
