@@ -1,5 +1,6 @@
 #include "gameplay.h"
 
+#include <string.h>
 #include <unistd.h>
 
 #include "keyboard.h"
@@ -103,4 +104,22 @@ void moveSnake(struct objectspace* space) {
         default:
             die("moveSnake");
     }
+}
+
+void updateScore(int score, game* game) {
+    if (game != NULL) {
+        game->score = score;
+    } else {
+        error("Game is not defined its null");
+    }
+}
+
+int initGameplay(const char* username, game* game) {
+    int usernameLen = strlen(username);
+    game->username = malloc(usernameLen * sizeof(char));
+    strcpy(game->username, username);
+    game->time = get_system_time();
+    char welcomeMessage[100];
+    snprintf(welcomeMessage, 100, "%s %s", PROMPT_INIT_MESSAGE, username);
+    return 0;
 }

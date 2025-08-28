@@ -43,6 +43,8 @@ set(SOURCES
     logger/logger.c
     src/digitaldisplay.c
     src/message.c
+    src/printter.c
+    src/screen.c
 )
 
 # Header files (for IDE support)
@@ -63,6 +65,8 @@ set(HEADERS
     logger/logger.h
     include/digitaldisplay.h
     include/message.h
+    include/printter.h
+    include/screen.h
 )
 
 # Create executable

@@ -19,6 +19,6 @@ typedef struct {
     int gameboard_height;
 } objectspaceconfigs;
 
-void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace);
-int initObjectSpace(struct objectspace* space, struct terminal termi, objectspaceconfigs configs);
+extern struct objectspace objspace;
+int initObjectSpace(objectspaceconfigs configs);
 #endif  // OBJECTSPACE_H

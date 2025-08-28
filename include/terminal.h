@@ -10,5 +10,7 @@ int getWindowSize(int* rows, int* cols);
 void enableRawMode(void);
 void disableRawMode(void);
 int getDisplayWidth(const char* str, int len);
+int initTerminal();
 extern struct termios orig_terminos;
+extern struct terminal terminal;
 #endif

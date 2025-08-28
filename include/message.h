@@ -15,7 +15,7 @@ typedef struct {
 
 extern promptmessage prompt;
 
-void setMessage(const char* msg);
+void setMessage(const char* fmt, ...);
 void emptyMessage();
 
 #endif

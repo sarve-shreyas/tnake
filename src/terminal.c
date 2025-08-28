@@ -13,6 +13,8 @@
 #include "utils.h"
 
 struct termios orig_terminos;
+struct terminal terminal;
+
 /*
  * Return 0 when success -1 when failed
  * captures the cursor position by sending the escape sequence to terminal
@@ -122,7 +124,7 @@ void enableRawMode(void) {
  */
 int getDisplayWidth(const char* str, int len) {
     setlocale(LC_ALL, "");
-    
+
     char* temp_str = (char*)malloc(len + 1);
     if (temp_str == NULL) {
         error("Failed to allocate memory for temp string");
@@ -150,4 +152,16 @@ int getDisplayWidth(const char* str, int len) {
     free(wide_str);
 
     return display_width;
+}
+
+int initTerminal() {
+    enableRawMode();
+    int rows = -1;
+    int cols = -1;
+    if (getWindowSize(&rows, &cols) != 0) {
+        error("Error while getWindowsize");
+        return -1;
+    }
+    terminal = (struct terminal){.col = cols, .row = rows};
+    return 0;
 }
