@@ -21,7 +21,7 @@
 #define FRUIT_BLOCK "  "
 
 // Digital Display
-#define DIGITAL_DISPLAY_SET " "
+#define DIGITAL_DISPLAY_SET "▄"
 #define DIGITAL_DISPLAY_USET " "
 
 // No object space styling

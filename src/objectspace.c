@@ -121,17 +121,20 @@ void printGameboard(struct abuf* ab, struct objectspace space) {
     }
 }
 
-void printDigit(struct abuf* ab, int x, int y, char digit) {
+void printDigit(struct abuf* ab, int* x, int* y, char digit) {
     int r = 0;
     int c = 0;
+    int old_x = *x;
     int** arr = get_digi_repr(digit, &r, &c);
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             int repr = arr[i][j];
             struct SpaceRepresentationStyle style = (repr) ? digital_display_set_style : digital_display_uset_style;
-            printStyleAt(ab, x + i, y + style.len * j, style);
+            printStyleAt(ab, *x + i, *y + style.len * j, style);
         }
     }
+    *x = old_x;
+    *y += c + 1;
 }
 
 void printScore(struct abuf* ab, struct objectspace space) {
@@ -142,7 +145,7 @@ void printScore(struct abuf* ab, struct objectspace space) {
     int x = board.bottom_left.x + 2;
     int y = board.bottom_left.y + 4;
     for (int i = 0; i < written; i++) {
-        printDigit(ab, x, y + 7 * i, buffer[i]);
+        printDigit(ab, &x, &y, buffer[i]);
     }
 }
 
