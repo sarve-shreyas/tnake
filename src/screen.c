@@ -33,8 +33,8 @@ int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
     return snakepart;
 }
 
-void printGameboard(struct abuf* ab, struct objectspace space) {
-    struct gameboard board = space.board;
+void printGameboard(struct abuf* ab) {
+    struct gameboard board = objspace.board;
     for (int i = board.top_left.x - 1; i <= board.bottom_right.x + 1; i++) {
         for (int j = board.top_left.y - 1; j <= board.bottom_right.y + 1; j++) {
             int objectType = NONE;
@@ -42,7 +42,7 @@ void printGameboard(struct abuf* ab, struct objectspace space) {
             if (getBoardBoundaryType(i, j, board) != NO_BOUNDARY) {
                 objectType = BOARD_BOUNDRY;
             } else {
-                objectType = getObjectOnBoard((i - board.top_left.x), (j - board.top_left.y) / 2, space.sn, space.fruit);
+                objectType = getObjectOnBoard((i - board.top_left.x), (j - board.top_left.y) / 2, objspace.sn, objspace.fruit);
             }
             struct SpaceRepresentationStyle style = objectType == BOARD_BOUNDRY ? getBoundrySpaceStyle(getBoardBoundaryType(i, j, board)) : getRepresentationStyle(objectType);
             printStyleAt(ab, i, j, style);
@@ -67,10 +67,10 @@ void printDigit(struct abuf* ab, int* x, int* y, char digit) {
     *y += c + 1;
 }
 
-void printScore(struct abuf* ab, struct objectspace space) {
-    struct gameboard board = space.board;
-    int score = space.sn->len;
-    if (space.sn->state == DEAD) return;
+void printScore(struct abuf* ab) {
+    struct gameboard board = objspace.board;
+    int score = objspace.sn->len;
+    if (objspace.sn->state == DEAD) return;
     char buffer[100];
     int written = snprintf(buffer, 100, "SCORE - %d", score);
     int x = board.bottom_left.x + 2;
@@ -80,16 +80,15 @@ void printScore(struct abuf* ab, struct objectspace space) {
     }
 }
 
-void printPromptMessage(struct abuf* ab, struct coordinate s_cord, struct coordinate e_cord) {
+void printPromptMessage(struct abuf* ab) {
     static struct coordinate* cordi = NULL;
 
-    int x = s_cord.x - 2;
-    int startY = s_cord.y - 1;
-    int endY = e_cord.y + 1;
+    int x = objspace.board.top_left.x - 2;
+    int startY = objspace.board.top_left.y - 1;
+    int endY = objspace.board.top_right.y + 1;
     int startPromptY = cordi == NULL ? -1 : cordi->y;
     int messagePromptUIWidth = getDisplayWidth(prompt.msg, prompt.len);
     int endPromptY = cordi == NULL ? -1 : cordi->y + messagePromptUIWidth;
-
     if (cordi == NULL) {
         cordi = malloc(sizeof(struct coordinate));
         cordi->x = x;
@@ -103,17 +102,39 @@ void printPromptMessage(struct abuf* ab, struct coordinate s_cord, struct coordi
     printStringAt(ab, x, startY, "[");
     printStringAt(ab, x, endY, "]");
     printStringAt(ab, cordi->x, cordi->y, prompt.msg);
+    if (prompt.state == DEAD) cordi = NULL;
 }
 
-void printObjectSpace(struct abuf* ab, struct objectspace objspace) {
+void printObjectSpace(struct abuf* ab) {
     clearScreen(ab);
-    printGameboard(ab, objspace);
-    printScore(ab, objspace);
-    printPromptMessage(ab, objspace.board.top_left, objspace.board.top_right);
+    printGameboard(ab);
+    printScore(ab);
+    printPromptMessage(ab);
 }
 
 void refreshScreen() {
+    // struct abuf ab = ABUF_INIT;
+    // printObjectSpace(&ab);
+    // abFlush(&ab);
+    refreshPromptMessage();
+    refreshScore();
+    refreshGameboard();
+}
+
+void refreshScore() {
     struct abuf ab = ABUF_INIT;
-    printObjectSpace(&ab, objspace);
+    printScore(&ab);
+    abFlush(&ab);
+}
+
+void refreshGameboard() {
+    struct abuf ab = ABUF_INIT;
+    printGameboard(&ab);
+    abFlush(&ab);
+}
+
+void refreshPromptMessage() {
+    struct abuf ab = ABUF_INIT;
+    printPromptMessage(&ab);
     abFlush(&ab);
 }

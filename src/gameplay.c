@@ -1,5 +1,6 @@
 #include "gameplay.h"
 
+#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -114,12 +115,29 @@ void updateScore(int score, game* game) {
     }
 }
 
-int initGameplay(const char* username, game* game) {
-    int usernameLen = strlen(username);
-    game->username = malloc(usernameLen * sizeof(char));
-    strcpy(game->username, username);
-    game->time = get_system_time();
-    char welcomeMessage[100];
-    snprintf(welcomeMessage, 100, "%s %s", PROMPT_INIT_MESSAGE, username);
+char* trim(char* str) {
+    char* end;
+    while (isspace((unsigned char)*str)) str++;
+    if (*str == '\0')
+        return str;
+    end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) end--;
+    *(end + 1) = '\0';
+    return str;
+}
+
+int validateUsername(char* username) {
+    if (username == NULL) return -1;
+    trim(username);
+    if (strlen(username) == 0) return -1;
+    return 0;
+}
+int initGameplay(game* game) {
+    char* username = promptUser("Username %s", 1);
+    if (validateUsername(username) != 0) {
+        promptUser(PROMPT_USERNAME_FORCE, 0);
+        return initGameplay(game);
+    }
+    setMessage("%s %s", PROMPT_INIT_MESSAGE, username);
     return 0;
 }

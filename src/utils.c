@@ -6,6 +6,7 @@
 
 #include "abuffer.h"
 #include "terminal.h"
+#include "printter.h"
 
 void die(const char* message) {
     fprintf(stderr, "Error: %s\n", message);
@@ -14,8 +15,8 @@ void die(const char* message) {
 
 void pexit(int code) {
     struct abuf ab = ABUF_INIT;
-    abAppend(&ab, "\x1b[H", 3);
-    abAppend(&ab, "\x1b[?25h", 6);
+    changeCursorStateToBuf(&ab, ALIVE);
+    clearScreen(&ab);
     abFlush(&ab);
     disableRawMode();
     return exit(code);

@@ -7,6 +7,9 @@
 
 #include "keyboard.h"
 #include "logger.h"
+#include "printter.h"
+#include "screen.h"
+#include "space.h"
 #include "utils.h"
 
 promptmessage prompt;
@@ -17,7 +20,6 @@ void setMessage(const char* fmt, ...) {
     va_copy(ap2, ap);
     int needed = vsnprintf(NULL, 0, fmt, ap2);
     va_end(ap2);
-    debug("Reuired size for fmt & ap %d", needed);
     emptyMessage();
 
     prompt.len = needed;
@@ -29,8 +31,8 @@ void setMessage(const char* fmt, ...) {
         die("setMessage");
     }
     int written = vsnprintf(prompt.msg, buffer_size, fmt, ap);
-    debug("Written %d bytes to prompt message", written);
     va_end(ap);
+    refreshPromptMessage();
 }
 
 void emptyMessage() {
@@ -39,4 +41,71 @@ void emptyMessage() {
         prompt.msg = NULL;
     }
     prompt.len = 0;
+}
+
+void updatePromptMessageState(int state) {
+    switch (state) {
+        case ALIVE:
+            debug("Updating prompt state to alive");
+            prompt.state = ALIVE;
+            break;
+        case DEAD:
+            debug("Updating prompt state to dead");
+            prompt.state = DEAD;
+            break;
+        default:
+            debug("Invalid message state");
+            break;
+    }
+}
+
+char* returnValueWithResetState(char* buf) {
+    changeCusrsorState(DEAD);
+    updatePromptMessageState(ALIVE);
+    return buf;
+}
+
+char* promptUser(const char* prompt, int need_data) {
+    size_t bufsize = 128;
+    char* buf = malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+    if (need_data) changeCusrsorState(ALIVE);
+    updatePromptMessageState(DEAD);
+    while (1) {
+        setMessage(prompt, buf);
+        refreshPromptMessage();
+
+        int c = editorReadKeyRaw(1000000);
+        if (c == EXIT) {
+            debug("Exiting from process");
+            pexit(0);
+        }
+        if (!need_data) {
+            setMessage("");
+            free(buf);
+            return returnValueWithResetState(NULL);
+        }
+        if (c == DELETE_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == ESCAPE) {
+            setMessage("");
+            free(buf);
+            return returnValueWithResetState(NULL);
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                setMessage("");
+                return returnValueWithResetState(buf);
+            }
+        } else if (!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+                bufsize *= 2;
+                buf = realloc(buf, bufsize);
+            }
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+    }
+    returnValueWithResetState(NULL);
 }

@@ -41,12 +41,12 @@ int initMessagePrompt() {
     prompt.msg = NULL;
     char* welcomeMessage = PROMPT_INIT_MESSAGE;
     setMessage(welcomeMessage);
+    updatePromptMessageState(ALIVE);
     return 0;
 }
 
 int initObjectSpace(objectspaceconfigs configs) {
-    
-    struct snake* sn = malloc(sizeof(struct snake));
+        struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
 
     if (configureSnake(configs.snake_init_len, sn) != 0) {

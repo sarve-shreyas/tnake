@@ -8,7 +8,7 @@ typedef struct {
 } game;
 
 void updateScore(int score, game* game);
-int initGameplay(const char* username, game* game);
+int initGameplay(game* game);
 void processKeyPressedAction(struct objectspace* space);
 void moveSnake(struct objectspace* space);
 #endif  // GAMEPLAY_H

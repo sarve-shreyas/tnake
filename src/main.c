@@ -30,6 +30,7 @@ void init(void) {
 
 int main() {
     init();
+    initGameplay(NULL);
     while (objspace.sn->len) {
         moveSnake(&objspace);
         refreshScreen();
