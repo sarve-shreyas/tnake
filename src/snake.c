@@ -113,20 +113,6 @@ int configureSnake(int len, struct snake* sn) {
     return 0;
 }
 
-void updateSnakeState(struct snake* sn) {
-    struct snakenode* headenode = sn->headpos;
-    if (!headenode || sn->state == DEAD) return;
-    struct snakenode* nextnode = headenode->nextnode;
-    while (nextnode) {
-        if (nextnode->data.coordinate.x == headenode->data.coordinate.x && nextnode->data.coordinate.y == headenode->data.coordinate.y) {
-            sn->state = DEAD;
-            deleteSnakeSegment(sn, nextnode);
-            break;
-        }
-        nextnode = nextnode->nextnode;
-    }
-}
-
 void changeSnakeDirection(struct snake* sn, int direction) {
     switch (direction) {
         case DIRECTION_DOWN:

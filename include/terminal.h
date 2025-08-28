@@ -9,6 +9,6 @@ struct terminal {
 int getWindowSize(int* rows, int* cols);
 void enableRawMode(void);
 void disableRawMode(void);
-
+int getDisplayWidth(const char* str, int len);
 extern struct termios orig_terminos;
 #endif

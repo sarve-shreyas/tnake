@@ -25,10 +25,10 @@ struct snake {
 void appendSnakePart(struct snake* sn, int type, struct snakepartdata data);
 void prependSnakePart(struct snake* sn, int type, struct snakepartdata data);
 void removeSnakeSegment(struct snake* sn);
-void updateSnakeState(struct snake* sn);
 void updatePositionWithDirection(struct snake* sn);
 void moveBodyParts(struct snake* sn);
 int configureSnake(int len, struct snake* sn);
 void changeSnakeDirection(struct snake* sn, int direction);
 struct coordinate* getSnakeCoordinates(struct snake* sn, int* len);
+void deleteSnakeSegment(struct snake* sn, struct snakenode* nextnode);
 #endif  // SNAKE_H

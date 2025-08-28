@@ -42,6 +42,7 @@ set(SOURCES
     src/space.c
     logger/logger.c
     src/digitaldisplay.c
+    src/message.c
 )
 
 # Header files (for IDE support)
@@ -61,6 +62,7 @@ set(HEADERS
     include/fruit.h
     logger/logger.h
     include/digitaldisplay.h
+    include/message.h
 )
 
 # Create executable

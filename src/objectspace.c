@@ -8,6 +8,7 @@
 #include "digitaldisplay.h"
 #include "fruit.h"
 #include "logger.h"
+#include "message.h"
 #include "snake.h"
 #include "styles.h"
 #include "utils.h"
@@ -33,9 +34,17 @@ int initFruit(struct objectspace* space) {
     return 0;
 }
 
+int initMessagePrompt() {
+    prompt.msg = NULL;
+    char* welcomeMessage = PROMPT_INIT_MESSAGE;
+    setMessage(welcomeMessage);
+    return 0;
+}
+
 int initObjectSpace(struct objectspace* space, struct terminal termi, objectspaceconfigs configs) {
     struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
+
     if (configureSnake(configs.snake_init_len, sn) != 0) {
         error("[configureSnake] Error while configuring snake returning -1");
         return -1;
@@ -48,6 +57,10 @@ int initObjectSpace(struct objectspace* space, struct terminal termi, objectspac
     space->sn = sn;
     if (initFruit(space) != 0) {
         error("[initFruit] Error while initialising fruit returning -1");
+        return -1;
+    }
+    if (initMessagePrompt() != 0) {
+        error("[initMessagePrompt] Error while initialising message prompt returning -1");
         return -1;
     }
     info("Initialising objectspace success");
@@ -76,9 +89,21 @@ void clearScreen(struct abuf* ab) {
     abAppend(ab, "\x1b[H", 3);
 }
 
+void clearRow(struct abuf* ab, int row) {
+    char buffer[20];
+    int written = snprintf(buffer, 20, "\x1b[%d;%dH\x1b[2K", row, 1);
+    abAppend(ab, buffer, written);
+}
+
 void printStyleAt(struct abuf* ab, int x, int y, struct SpaceRepresentationStyle style) {
     char buf[200];
     int bytes = snprintf(buf, 200, "\x1b[%d;%dH%s", x, y, colorStr(style.str, style.bgcolor, style.fgcolor));
+    abAppend(ab, buf, bytes);
+}
+
+void printStringAt(struct abuf* ab, int x, int y, char* str) {
+    char buf[200];
+    int bytes = snprintf(buf, 200, "\x1b[%d;%dH%s", x, y, str);
     abAppend(ab, buf, bytes);
 }
 
@@ -128,8 +153,36 @@ void printScore(struct abuf* ab, struct objectspace space) {
     }
 }
 
-void printObjectSpace(struct abuf* ab, struct terminal termi, struct objectspace objspace) {
+void printPromptMessage(struct abuf* ab, struct objectspace space) {
+    static struct coordinate* cordi = NULL;
+
+    int x = space.board.top_left.x - 2;
+    int startY = space.board.top_left.y - 1;
+    int endY = space.board.top_right.y + 1;
+    int startPromptY = cordi == NULL ? -1 : cordi->y;
+    int messagePromptUIWidth = getDisplayWidth(prompt.msg, prompt.len);
+    int endPromptY = cordi == NULL ? -1 : cordi->y + messagePromptUIWidth;
+
+    debug("MessageUI widht %d", messagePromptUIWidth);
+    debug("{start, end} - {%d, %d}", startPromptY, endPromptY);
+    if (cordi == NULL) {
+        cordi = malloc(sizeof(struct coordinate));
+        cordi->x = x;
+        cordi->y = startY + 1;
+    } else if (endPromptY == (endY - 1)) {
+        cordi->y = startY + 1;
+    } else {
+        cordi->y += 1;
+    }
+    clearRow(ab, x);
+    printStringAt(ab, x, startY, "[");
+    printStringAt(ab, x, endY, "]");
+    printStringAt(ab, cordi->x, cordi->y, prompt.msg);
+}
+
+void printObjectSpace(struct abuf* ab, struct terminal _, struct objectspace objspace) {
     clearScreen(ab);
     printGameboard(ab, objspace);
     printScore(ab, objspace);
+    printPromptMessage(ab, objspace);
 }

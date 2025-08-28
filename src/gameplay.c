@@ -1,7 +1,10 @@
 #include "gameplay.h"
 
+#include <unistd.h>
+
 #include "keyboard.h"
 #include "logger.h"
+#include "message.h"
 #include "snake.h"
 #include "space.h"
 #include "utils.h"
@@ -44,12 +47,29 @@ int assignNewFruit(struct objectspace* space) {
     return 0;
 }
 
+int checkIfEachHimself(struct snake* sn) {
+    struct snakenode* headenode = sn->headpos;
+    if (!headenode || sn->state == DEAD) return 0;
+    struct snakenode* nextnode = headenode->nextnode;
+    while (nextnode) {
+        if (nextnode->data.coordinate.x == headenode->data.coordinate.x && nextnode->data.coordinate.y == headenode->data.coordinate.y) {
+            sn->state = DEAD;
+            deleteSnakeSegment(sn, nextnode);
+            setMessage(PROMPT_SNAKE_EAT_SELF);
+            return 1;
+        }
+        nextnode = nextnode->nextnode;
+    }
+    return 0;
+}
+
 int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     if (sn->state == DEAD) return 1;
     struct coordinate head = sn->headpos->data.coordinate;
     if (head.x < 0 || head.y < 0 || head.x >= board.height || head.y >= board.width) {
         sn->state = DEAD;
         info("Snake hit the boundary killing snake & changing snake state to %d", sn->state);
+        setMessage(PROMPT_HIT_BOUNDARY);
         return 1;
     }
     return 0;
@@ -74,10 +94,11 @@ void moveSnake(struct objectspace* space) {
             checkIfSnakeHitBoundary(space->sn, space->board);
             moveBodyParts(space->sn);
             updatePositionWithDirection(space->sn);
-            updateSnakeState(space->sn);
+            checkIfEachHimself(space->sn);
             break;
         case DEAD:
             removeSnakeSegment(space->sn);
+            usleep(250000);
             break;
         default:
             die("moveSnake");

@@ -1,12 +1,17 @@
 #include "terminal.h"
 
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <wchar.h>
 
+#include "logger.h"
 #include "utils.h"
+
 struct termios orig_terminos;
 /*
  * Return 0 when success -1 when failed
@@ -34,6 +39,9 @@ int getCursorPosition(int* rows, int* cols) {
  */
 int getWindowSize(int* rows, int* cols) {
     struct winsize ws;
+    *cols = 182;
+    *rows = 49;
+    return 0;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
         if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12) return -1;
         return getCursorPosition(rows, cols);
@@ -96,4 +104,50 @@ void enableRawMode(void) {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
         die("tcsetattr");
     }
+}
+
+/**
+ * Calculates the display width of a multi-byte string in terminal columns.
+ *
+ * This function converts a multi-byte string to wide characters and calculates
+ * how many columns it would occupy in a terminal display. It properly handles
+ * multi-byte characters (like UTF-8) and wide characters (like Chinese characters).
+ *
+ * @param str Pointer to the input string to measure
+ * @param len Length of the input string in bytes
+ *
+ * @return The display width in columns if successful, -1 if an error occurs
+ *         (memory allocation failure or invalid multi-byte sequence)
+ *
+ */
+int getDisplayWidth(const char* str, int len) {
+    setlocale(LC_ALL, "");
+    
+    char* temp_str = (char*)malloc(len + 1);
+    if (temp_str == NULL) {
+        error("Failed to allocate memory for temp string");
+        return -1;
+    }
+    memcpy(temp_str, str, len);
+    temp_str[len] = '\0';
+
+    size_t wide_len = mbstowcs(NULL, temp_str, 0);
+    if (wide_len == (size_t)-1) {
+        error("Error: Invalid multi-byte sequence in input string");
+        free(temp_str);
+        return -1;
+    }
+
+    wchar_t* wide_str = (wchar_t*)malloc((wide_len + 1) * sizeof(wchar_t));
+    if (wide_str == NULL) {
+        error("Failed to allocate memory for wide string");
+        free(temp_str);
+        return -1;
+    }
+    mbstowcs(wide_str, temp_str, wide_len + 1);
+    int display_width = wcswidth(wide_str, wide_len);
+    free(temp_str);
+    free(wide_str);
+
+    return display_width;
 }
