@@ -112,10 +112,7 @@ void printObjectSpace(struct abuf* ab) {
     printPromptMessage(ab);
 }
 
-void refreshScreen() {
-    // struct abuf ab = ABUF_INIT;
-    // printObjectSpace(&ab);
-    // abFlush(&ab);
+void refreshGameScreen() {
     refreshPromptMessage();
     refreshScore();
     refreshGameboard();
@@ -177,16 +174,27 @@ void refreshScreenPromptMessageScreen() {
     if (getScreenpromptmegs(&megs) != 0) die("getScreenpromptmegs");
     struct abuf ab = ABUF_INIT;
     clearScreen(&ab);
+    clearScreen(&ab);
     int rows = terminal.row;
+    int cols = terminal.col;
     int start_row = rows / 2 - megs.len;
     char title[50];
     snprintf(title, 50, "=== Message ===");
     struct SpaceRepresentationStyle style = no_object_style;
     printRowCenter(&ab, start_row - 2, title, style);
+
+    int max_len = -1;
+    for (int i = 0; i < megs.len; i++) {
+        int displayWidth = getDisplayWidth(megs.megs[i], strlen(megs.megs[i]));
+        if (max_len < displayWidth) {
+            max_len = displayWidth;
+        }
+    }
+    int col =  (cols > max_len) ? (cols - max_len) / 2 : 1; 
     for (int i = 0; i < megs.len; i++) {
         int len = strlen(megs.megs[i]);
         int row = start_row + i;
-        printRowCenter(&ab, row, megs.megs[i], style);
+        printStringAtWithStyle(&ab, row, col, megs.megs[i], style);
     }
     printRowCenter(&ab, rows - 2, PROMPT_SCREEN_PROMPT_INFO, no_object_style);
     abFlush(&ab);

@@ -2,7 +2,7 @@
 #ifndef TNAKE_SCREEN_H
 #define TNAKE_SCREEN_H
 
-void refreshScreen();
+void refreshGameScreen();
 void refreshScore();
 void refreshGameboard();
 void refreshPromptMessage();

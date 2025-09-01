@@ -46,6 +46,7 @@ set(SOURCES
     src/printter.c
     src/screen.c
     src/gmenu.c
+    src/renders.c
 )
 
 # Header files (for IDE support)
@@ -69,6 +70,7 @@ set(HEADERS
     include/printter.h
     include/screen.h
     include/gmenu.h
+    include/renders.h
 )
 
 # Create executable

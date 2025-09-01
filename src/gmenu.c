@@ -33,6 +33,10 @@ int getmenu(menudata* m) {
     return 0;
 }
 
+int returnWithIndex(int index) {
+    resetmenu();
+    return index;
+}
 /**
  * Draws and handles the menu interface.
  *
@@ -60,8 +64,7 @@ int drawmenu(menudata m) {
         switch (key) {
             case SPACEBAR:
             case ENTER_KEY:
-                resetmenu();
-                return tmenu->selected;
+                return returnWithIndex(tmenu->selected);
             case ARROW_UP:
                 tmenu->selected = (tmenu->selected - 1 + tmenu->len) % tmenu->len;
                 break;
@@ -69,11 +72,9 @@ int drawmenu(menudata m) {
                 tmenu->selected = (tmenu->selected + 1) % tmenu->len;
                 break;
             case EXIT:
-                resetmenu();
                 pexit(0);
-                return -1;
+                return returnWithIndex(-1);
         }
     }
-    resetmenu();
-    return -1;
+    return returnWithIndex(-1);
 }

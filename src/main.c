@@ -8,6 +8,7 @@
 #include "gameplay.h"
 #include "logger.h"
 #include "objectspace.h"
+#include "renders.h"
 #include "screen.h"
 #include "terminal.h"
 #include "utils.h"
@@ -30,12 +31,24 @@ void init(void) {
 
 int main() {
     init();
-    initGameplay(NULL);
-    while (objspace.sn->len) {
-        moveSnake(&objspace);
-        refreshScreen();
+    int ret = mainmenuscreen();
+    switch (ret) {
+        case 0: {
+            howtoplayscreen();
+            gameplayscreen();
+            break;
+        }
+        case 1: {
+            scoreboardscreen();
+            break;
+        }
+        case 2: {
+            pexit(0);
+            break;
+        }
+        default:
+            die("Invalid option selected");
     }
-    refreshScreen();
     pexit(0);
     return 0;
 }

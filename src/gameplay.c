@@ -11,23 +11,45 @@
 #include "space.h"
 #include "utils.h"
 
+static game* gameplay;
 void processKeyPressedAction(struct objectspace* space) {
     int keyPressed = editorReadKey(100);
-    switch (keyPressed) {
-        case ARROW_UP: {
-            return changeSnakeDirection(space->sn, DIRECTION_UP);
+    switch (gameplay->gamestate) {
+        case ALIVE: {
+            switch (keyPressed) {
+                case ARROW_UP: {
+                    return changeSnakeDirection(space->sn, DIRECTION_UP);
+                }
+                case ARROW_DOWN: {
+                    return changeSnakeDirection(space->sn, DIRECTION_DOWN);
+                }
+                case ARROW_LEFT: {
+                    return changeSnakeDirection(space->sn, DIRECTION_LEFT);
+                }
+                case ARROW_RIGHT: {
+                    return changeSnakeDirection(space->sn, DIRECTION_RIGHT);
+                }
+                case EXIT: {
+                    pexit(0);
+                }
+                case SPACEBAR:
+                case ENTER_KEY: {
+                    if (gameplay->gamestate == ALIVE)
+                        gameplay->gamestate = DEAD;
+                    else
+                        gameplay->gamestate = ALIVE;
+                    updatePromptMessageState(DEAD);
+                    setMessage("Gameplay paused !! Hit any key to start play");
+                }
+            }
+            break;
         }
-        case ARROW_DOWN: {
-            return changeSnakeDirection(space->sn, DIRECTION_DOWN);
-        }
-        case ARROW_LEFT: {
-            return changeSnakeDirection(space->sn, DIRECTION_LEFT);
-        }
-        case ARROW_RIGHT: {
-            return changeSnakeDirection(space->sn, DIRECTION_RIGHT);
-        }
-        case EXIT: {
-            pexit(0);
+        case DEAD: {
+            if (keyPressed == KEY_TIMEOUT) return;
+            if (keyPressed == EXIT) pexit(0);
+            updatePromptMessageState(ALIVE);
+            setMessage("");
+            gameplay->gamestate = ALIVE;
         }
     }
 }
@@ -85,31 +107,40 @@ void checkIfFruitConsumed(struct objectspace* space) {
         appendSnakePart(sn, BODY_PART, part);
         info("Snake consumed the fruit at {%d, %d}", ft->coordinate.x, ft->coordinate.y);
         assignNewFruit(space);
+        updateScore(sn->len);
     }
 }
 
 void moveSnake(struct objectspace* space) {
-    switch (space->sn->state) {
-        case ALIVE:
-            checkIfFruitConsumed(space);
+    switch (gameplay->gamestate) {
+        case ALIVE: {
+            switch (space->sn->state) {
+                case ALIVE:
+                    checkIfFruitConsumed(space);
+                    processKeyPressedAction(space);
+                    checkIfSnakeHitBoundary(space->sn, space->board);
+                    moveBodyParts(space->sn);
+                    updatePositionWithDirection(space->sn);
+                    checkIfEachHimself(space->sn);
+                    break;
+                case DEAD:
+                    removeSnakeSegment(space->sn);
+                    usleep(250000);
+                    break;
+                default:
+                    die("moveSnake");
+            }
+            break;
+        }
+        case DEAD: {
             processKeyPressedAction(space);
-            checkIfSnakeHitBoundary(space->sn, space->board);
-            moveBodyParts(space->sn);
-            updatePositionWithDirection(space->sn);
-            checkIfEachHimself(space->sn);
-            break;
-        case DEAD:
-            removeSnakeSegment(space->sn);
-            usleep(250000);
-            break;
-        default:
-            die("moveSnake");
+        }
     }
 }
 
-void updateScore(int score, game* game) {
-    if (game != NULL) {
-        game->score = score;
+void updateScore(int score) {
+    if (gameplay != NULL) {
+        gameplay->score = score;
     } else {
         error("Game is not defined its null");
     }
@@ -132,12 +163,30 @@ int validateUsername(char* username) {
     if (strlen(username) == 0) return -1;
     return 0;
 }
-int initGameplay(game* game) {
+
+int initGameplay() {
     char* username = promptUser("Username %s", 1);
     if (validateUsername(username) != 0) {
+        free(username);
         promptUser(PROMPT_USERNAME_FORCE, 0);
-        return initGameplay(game);
+        return initGameplay();
     }
-    setMessage("%s %s", PROMPT_INIT_MESSAGE, username);
+    gameplay = malloc(sizeof(game));
+    int len = strlen(username) + 2;
+    gameplay->username = malloc(len * sizeof(char));
+    strcpy(gameplay->username, username);
+    gameplay->score = 0;
+    gameplay->gamestate = ALIVE;
+    gameplay->time = get_system_time();
+    setMessage("%s %s", PROMPT_INIT_MESSAGE, gameplay->username);
+    free(username);
     return 0;
+}
+
+int getGameplay(game* g) {
+    if (gameplay == NULL) {
+        g = NULL;
+        return -1;
+    }
+    *g = *gameplay;
 }

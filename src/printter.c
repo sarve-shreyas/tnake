@@ -27,7 +27,7 @@ void printStringAtWithStyle(struct abuf* ab, int x, int y, const char* str, stru
 }
 
 void clearScreen(struct abuf* ab) {
-    abAppend(ab, "\x1b[H", 3);
+    abAppend(ab, "\x1b[2J\x1b[H", 6);
 }
 
 void clearRow(struct abuf* ab, int row) {
