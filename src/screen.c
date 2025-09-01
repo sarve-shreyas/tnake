@@ -171,3 +171,23 @@ void refreshMenuScreen() {
     printRowCenter(&ab, start_row + m.len * 3, MENU_SCREEN_INFO_MSG, getRepresentationStyle(GMENU_FOOTER));
     abFlush(&ab);
 }
+
+void refreshScreenPromptMessageScreen() {
+    screenpromptmegs megs;
+    if (getScreenpromptmegs(&megs) != 0) die("getScreenpromptmegs");
+    struct abuf ab = ABUF_INIT;
+    clearScreen(&ab);
+    int rows = terminal.row;
+    int start_row = rows / 2 - megs.len;
+    char title[50];
+    snprintf(title, 50, "=== Message ===");
+    struct SpaceRepresentationStyle style = no_object_style;
+    printRowCenter(&ab, start_row - 2, title, style);
+    for (int i = 0; i < megs.len; i++) {
+        int len = strlen(megs.megs[i]);
+        int row = start_row + i;
+        printRowCenter(&ab, row, megs.megs[i], style);
+    }
+    printRowCenter(&ab, rows - 2, PROMPT_SCREEN_PROMPT_INFO, no_object_style);
+    abFlush(&ab);
+}

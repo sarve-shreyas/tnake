@@ -13,6 +13,7 @@
 #include "utils.h"
 
 promptmessage prompt;
+screenpromptmegs* userPromptMessages = NULL;
 
 void setMessage(const char* fmt, ...) {
     va_list ap, ap2;
@@ -108,4 +109,42 @@ char* promptUser(const char* prompt, int need_data) {
         }
     }
     returnValueWithResetState(NULL);
+}
+
+void resetScreenpromptmegs() {
+    if (userPromptMessages != NULL) {
+        free(userPromptMessages);
+        userPromptMessages = NULL;
+    }
+}
+
+void setScreenpromptmegs(int len, char** msg) {
+    resetScreenpromptmegs();
+    userPromptMessages = malloc(sizeof(screenpromptmegs));
+    userPromptMessages->megs = msg;
+    userPromptMessages->len = len;
+}
+
+void screenPromptMessage(int len, char** msgs) {
+    setScreenpromptmegs(len, msgs);
+    int key = -1;
+    while (1) {
+        refreshScreenPromptMessageScreen();
+        key = editorReadKeyRaw(10000);
+        if (key == EXIT) {
+            info("Pressed exit key killing process");
+            pexit(0);
+        } else if (key != KEY_TIMEOUT) {
+            return resetScreenpromptmegs();
+        }
+    }
+}
+
+int getScreenpromptmegs(screenpromptmegs* megs) {
+    if (userPromptMessages != NULL) {
+        *megs = *userPromptMessages;
+        return 0;
+    }
+    megs = NULL;
+    return 1;
 }
