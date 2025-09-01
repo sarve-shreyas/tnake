@@ -6,6 +6,7 @@
 
 void printStyleAt(struct abuf* ab, int x, int y, struct SpaceRepresentationStyle style);
 void printStringAt(struct abuf* ab, int x, int y, char* str);
+void printStringAtWithStyle(struct abuf* ab, int x, int y, const char* str, struct SpaceRepresentationStyle style);
 void clearScreen(struct abuf* ab);
 void clearRow(struct abuf* ab, int row);
 void moveCursor(struct abuf* ab, int x, int y);

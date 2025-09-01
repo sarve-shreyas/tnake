@@ -7,6 +7,7 @@
 
 #include "digitaldisplay.h"
 #include "fruit.h"
+#include "gmenu.h"
 #include "logger.h"
 #include "message.h"
 #include "objectspace.h"
@@ -86,7 +87,6 @@ void printPromptMessage(struct abuf* ab) {
     int x = objspace.board.top_left.x - 2;
     int startY = objspace.board.top_left.y - 1;
     int endY = objspace.board.top_right.y + 1;
-    int startPromptY = cordi == NULL ? -1 : cordi->y;
     int messagePromptUIWidth = getDisplayWidth(prompt.msg, prompt.len);
     int endPromptY = cordi == NULL ? -1 : cordi->y + messagePromptUIWidth;
     if (cordi == NULL) {
@@ -136,5 +136,38 @@ void refreshGameboard() {
 void refreshPromptMessage() {
     struct abuf ab = ABUF_INIT;
     printPromptMessage(&ab);
+    abFlush(&ab);
+}
+
+void printRowCenter(struct abuf* ab, int row, const char* str, struct SpaceRepresentationStyle style) {
+    int cols = terminal.col;
+    int len = strlen(str);
+    int col = (cols > len) ? (cols - len) / 2 : 1;
+    clearRow(ab, row);
+    printStringAtWithStyle(ab, row, col, str, style);
+}
+
+void refreshMenuScreen() {
+    menudata m;
+    if (getmenu(&m) != 0) die("menudata");
+    struct abuf ab = ABUF_INIT;
+    clearScreen(&ab);
+    int rows = terminal.row;
+    int start_row = rows / 2 - m.len;
+    char title[strlen(m.title) + 20];
+    snprintf(title, strlen(m.title) + 20, "=== %s ===", m.title);
+    printRowCenter(&ab, start_row - 2, title, getRepresentationStyle(GMENU_TITLE));
+    for (int i = 0; i < m.len; i++) {
+        struct SpaceRepresentationStyle style = i == m.selected ? getRepresentationStyle(GEMENU_SELECTED_ITEM) : getRepresentationStyle(GEMENU_U_SELECTED_ITEM);
+        int len = strlen(m.options[i]);
+        int row = start_row + i * 2;
+        char buffer[len + 20];
+        if (i == m.selected)
+            snprintf(buffer, len + 20, " %s       ", m.options[i]);
+        else
+            snprintf(buffer, len + 20, "%s", m.options[i]);
+        printRowCenter(&ab, row, buffer, style);
+    }
+    printRowCenter(&ab, start_row + m.len * 3, MENU_SCREEN_INFO_MSG, getRepresentationStyle(GMENU_FOOTER));
     abFlush(&ab);
 }

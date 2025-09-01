@@ -7,6 +7,10 @@ enum SpaceComponent {
     BOARD_BLOCK,
     BOARD_BOUNDRY,
     FRUIT,
+    GEMENU_SELECTED_ITEM,
+    GEMENU_U_SELECTED_ITEM,
+    GMENU_TITLE,
+    GMENU_FOOTER,
     NONE
 };
 

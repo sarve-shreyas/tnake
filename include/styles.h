@@ -26,6 +26,10 @@ extern const struct SpaceRepresentationStyle fruit_block_style;
 extern const struct SpaceRepresentationStyle digital_display_set_style;
 extern const struct SpaceRepresentationStyle digital_display_uset_style;
 
+// Menu
+extern const struct SpaceRepresentationStyle gmenu_selected_style;
+extern const struct SpaceRepresentationStyle gmenu_uselected_style;
+extern const struct SpaceRepresentationStyle gmenu_title_style;
 
 struct SpaceRepresentationStyle getRepresentationStyle(int object);
 struct SpaceRepresentationStyle getBoundrySpaceStyle(int boundry_type);

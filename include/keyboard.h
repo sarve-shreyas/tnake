@@ -13,6 +13,8 @@ enum SupportedKeys {
     ARROW_RIGHT,
     ARROW_DOWN,
     ARROW_LEFT,
+    SPACEBAR,
+    ENTER_KEY,
     ESCAPE = 27,
     EXIT,
     DELETE_KEY,

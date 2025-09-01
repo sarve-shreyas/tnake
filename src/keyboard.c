@@ -107,6 +107,10 @@ int editorReadKey(int timeout_ms) {
         case 'A':
         case 'a':
             return ARROW_LEFT;
+        case ' ':
+            return SPACEBAR;
+        case '\r':
+            return ENTER_KEY;
         case CTRL_KEY('Q'):
         case CTRL_KEY('C'):
             return EXIT;
@@ -150,22 +154,30 @@ int editorReadKeyRaw(int timeout_ms) {
                 if (!wait_more() || read(STDIN_FILENO, &seq[2], 1) != 1) return ESCAPE;
                 if (seq[2] == '~') {
                     switch (seq[1]) {
-                        case '3': return DELETE_KEY;
-                        default: return UNKNOWN_KEY;
+                        case '3':
+                            return DELETE_KEY;
+                        default:
+                            return UNKNOWN_KEY;
                     }
                 }
             } else {
                 switch (seq[1]) {
-                    case 'A': return ARROW_UP;
-                    case 'B': return ARROW_DOWN;
-                    case 'C': return ARROW_RIGHT;
-                    case 'D': return ARROW_LEFT;
+                    case 'A':
+                        return ARROW_UP;
+                    case 'B':
+                        return ARROW_DOWN;
+                    case 'C':
+                        return ARROW_RIGHT;
+                    case 'D':
+                        return ARROW_LEFT;
                 }
             }
         } else if (seq[0] == 'O') {
             switch (seq[1]) {
-                case 'H': return UNKNOWN_KEY;
-                case 'F': return UNKNOWN_KEY;
+                case 'H':
+                    return UNKNOWN_KEY;
+                case 'F':
+                    return UNKNOWN_KEY;
             }
         }
         return ESCAPE;

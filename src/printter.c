@@ -19,6 +19,13 @@ void printStringAt(struct abuf* ab, int x, int y, char* str) {
     abAppend(ab, buf, bytes);
 }
 
+void printStringAtWithStyle(struct abuf* ab, int x, int y, const char* str, struct SpaceRepresentationStyle style) {
+    char buf[200];
+    moveCursor(ab, x, y);
+    int bytes = snprintf(buf, 200, "%s", colorStr(str, style.bgcolor, style.fgcolor));
+    abAppend(ab, buf, bytes);
+}
+
 void clearScreen(struct abuf* ab) {
     abAppend(ab, "\x1b[H", 3);
 }

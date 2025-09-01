@@ -6,4 +6,5 @@ void refreshScreen();
 void refreshScore();
 void refreshGameboard();
 void refreshPromptMessage();
+void refreshMenuScreen();
 #endif  // TNAKE_SCREEN_H
