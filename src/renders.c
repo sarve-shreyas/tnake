@@ -23,7 +23,22 @@ int mainmenuscreen() {
     char* menuItems[] = {"New Game", "Scoreboard", "Quit"};
     char* menuTitle = "Main Menu";
     menudata m = {.len = 3, .options = menuItems, .title = menuTitle};
-    return drawmenu(m);
+    int ret = drawmenu(m);
+    switch (ret) {
+        case 0: {
+            return gameplayscreen();
+        }
+        case 1: {
+            return scoreboardscreen();
+        }
+        case 2: {
+            pexit(0);
+            break;
+        }
+        default:
+            die("Invalid option selected");
+    }
+    return -1;
 }
 
 int howtoplayscreen() {
@@ -44,28 +59,58 @@ int howtoplayscreen() {
 int scorescreen() {
     game g;
     getGameplay(&g);
-    char* time[256];
+    char time[256];
     stringAppend(2, time, "Time - ", g.time);
-    char* username[256];
+    char username[256];
     stringAppend(2, username, "User - ", g.username);
-    char* scoe[256];
+    char scoe[256];
     stringAppend(2, scoe, "Score - ", "22");
-    int len = 3;
+    int len = 7;
     char* title = "Game Score";
-    char* megs[] = {time, username, scoe};
-    return screenPromptMessage(len, megs, NULL, title);
+    char* footer = "Press any other key to exit";
+    char* megs[] = {time, username, scoe, "", "S - save score", "M - Main Menu", "Q - Quit"};
+    int key = screenPromptMessage(len, megs, footer, title);
+    switch (key) {
+        case 's':
+        case 'S':
+            // save score
+            break;
+        case 'M':
+        case 'm':
+            return mainmenuscreen();
+        default:
+            pexit(0);
+            break;
+    }
+    return -1;
 }
 
 int gameplayscreen() {
+    howtoplayscreen();
     clearScreenAB();
     initGameplay();
-    while (objspace.sn->len) {
-        moveSnake(&objspace);
+    int keep_running = ALIVE;
+    while (keep_running == ALIVE) {
+        game gameplay;
+        if (getGameplay(&gameplay) != 0) die("getGameplay");
+        switch (gameplay.gamestate) {
+            case GAMEPLAY_PLAYING:
+                progressGameplay();
+                break;
+            case GAMEPLAY_PAUSED:
+                progressGameplay();
+                break;
+            case GAMEPLAY_WINNER:
+            case GAMEPLAY_GAMEOVER:
+                keep_running = DEAD;
+                break;
+            default:
+                die("invalidGamestate");
+        }
         refreshGameScreen();
     }
     refreshGameScreen();
-    scorescreen();
-    return 0;
+    return scorescreen();
 }
 
 int scoreboardscreen() {

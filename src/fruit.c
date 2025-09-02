@@ -5,7 +5,7 @@
 
 #include "styles.h"
 
-#define RANDOM_ITERATIONS 1 << 15
+#define RANDOM_ITERATIONS 1 << 5
 struct coordinate getNewCordinates(int height, int width) {
     srand(time(NULL));
     int i = rand() % height;

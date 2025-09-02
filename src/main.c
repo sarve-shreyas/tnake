@@ -31,24 +31,7 @@ void init(void) {
 
 int main() {
     init();
-    int ret = mainmenuscreen();
-    switch (ret) {
-        case 0: {
-            howtoplayscreen();
-            gameplayscreen();
-            break;
-        }
-        case 1: {
-            scoreboardscreen();
-            break;
-        }
-        case 2: {
-            pexit(0);
-            break;
-        }
-        default:
-            die("Invalid option selected");
-    }
+    mainmenuscreen();
     pexit(0);
     return 0;
 }

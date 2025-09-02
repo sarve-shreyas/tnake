@@ -9,9 +9,11 @@
 #include "abuffer.h"
 #include "printter.h"
 #include "terminal.h"
+#include "logger.h"
 
 void die(const char* message) {
     fprintf(stderr, "Error: %s\n", message);
+    error("killing process %s", message);
     pexit(1);
 }
 

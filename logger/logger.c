@@ -59,6 +59,7 @@ char* preprarelogmessage(struct loggerinformation ilogger) {
     int final_msg_size = strlen(ilogger.timestamp) + strlen(formatted_msg) + strlen(log_level_str) + strlen(formatter) + 1;
     char* final_msg = malloc(final_msg_size * sizeof(char));
     snprintf(final_msg, final_msg_size, formatter, ilogger.timestamp, log_level_str, formatted_msg);
+    free(formatted_msg);
     return final_msg;
 }
 FILE* log_file = NULL;
@@ -69,6 +70,7 @@ int open_file_if_not() {
         if (log_file == NULL) {
             return 1;
         }
+        setvbuf(log_file, NULL, _IOLBF, 0);
     }
     return 0;
 }
@@ -77,6 +79,7 @@ void log(struct loggerinformation l_data) {
     if (open_file_if_not() == 1) return;
     char* final_msg = preprarelogmessage(l_data);
     fputs(final_msg, log_file);
+    fflush(log_file);
     free(final_msg);
 }
 void log_message_v(int log_level, char* msg, va_list ap) {

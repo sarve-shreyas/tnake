@@ -8,9 +8,15 @@ typedef struct {
     int gamestate;
 } game;
 
-void updateScore(int score);
+enum Gameplay_State {
+    GAMEPLAY_PLAYING,
+    GAMEPLAY_PAUSED,
+    GAMEPLAY_WINNER,
+    GAMEPLAY_GAMEOVER,
+    GAMEPLAY_NONE
+};
+
 int initGameplay();
 int getGameplay(game* g);
-void processKeyPressedAction(struct objectspace* space);
-void moveSnake(struct objectspace* space);
+void progressGameplay();
 #endif  // GAMEPLAY_H

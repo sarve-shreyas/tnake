@@ -12,45 +12,45 @@
 #include "utils.h"
 
 static game* gameplay;
+
 void processKeyPressedAction(struct objectspace* space) {
     int keyPressed = editorReadKey(100);
-    switch (gameplay->gamestate) {
-        case ALIVE: {
-            switch (keyPressed) {
-                case ARROW_UP: {
-                    return changeSnakeDirection(space->sn, DIRECTION_UP);
-                }
-                case ARROW_DOWN: {
-                    return changeSnakeDirection(space->sn, DIRECTION_DOWN);
-                }
-                case ARROW_LEFT: {
-                    return changeSnakeDirection(space->sn, DIRECTION_LEFT);
-                }
-                case ARROW_RIGHT: {
-                    return changeSnakeDirection(space->sn, DIRECTION_RIGHT);
-                }
-                case EXIT: {
-                    pexit(0);
-                }
-                case SPACEBAR:
-                case ENTER_KEY: {
-                    if (gameplay->gamestate == ALIVE)
-                        gameplay->gamestate = DEAD;
-                    else
-                        gameplay->gamestate = ALIVE;
-                    updatePromptMessageState(DEAD);
-                    setMessage("Gameplay paused !! Hit any key to start play");
-                }
+    switch (keyPressed) {
+        case ARROW_UP: {
+            return changeSnakeDirection(space->sn, DIRECTION_UP);
+        }
+        case ARROW_DOWN: {
+            return changeSnakeDirection(space->sn, DIRECTION_DOWN);
+        }
+        case ARROW_LEFT: {
+            return changeSnakeDirection(space->sn, DIRECTION_LEFT);
+        }
+        case ARROW_RIGHT: {
+            return changeSnakeDirection(space->sn, DIRECTION_RIGHT);
+        }
+        case EXIT: {
+            pexit(0);
+            break;
+        }
+        case SPACEBAR:
+        case ENTER_KEY: {
+            if (gameplay->gamestate == GAMEPLAY_PLAYING) {
+                gameplay->gamestate = GAMEPLAY_PAUSED;
+                debug("Changed gameplay state %s", "GAMEPLAY_PAUSED");
+            } else {
+                gameplay->gamestate = GAMEPLAY_PLAYING;
+                debug("Changed gameplay state %s", "GAMEPLAY_PLAYING");
             }
             break;
         }
-        case DEAD: {
-            if (keyPressed == KEY_TIMEOUT) return;
-            if (keyPressed == EXIT) pexit(0);
-            updatePromptMessageState(ALIVE);
-            setMessage("");
-            gameplay->gamestate = ALIVE;
-        }
+    }
+}
+
+void updateScore(int score) {
+    if (gameplay != NULL) {
+        gameplay->score = score;
+    } else {
+        error("Game is not defined its null");
     }
 }
 
@@ -63,7 +63,6 @@ int assignNewFruit(struct objectspace* space) {
     if (getNewFruitCoordinates(space->board.height, space->board.width, occ, occ_len, space->fruit) != 0) {
         free(occ);
         error("Assigning new fruit failled killing the process");
-        die("assignNewFruit");
         return -1;
     }
     free(occ);
@@ -99,50 +98,35 @@ int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     return 0;
 }
 
-void checkIfFruitConsumed(struct objectspace* space) {
+int checkIfFruitConsumed(struct objectspace* space) {
     struct snake* sn = space->sn;
     struct fruit* ft = space->fruit;
     if (sameCordinates(sn->headpos->data.coordinate, ft->coordinate)) {
         struct snakepartdata part = sn->tail->data;
         appendSnakePart(sn, BODY_PART, part);
         info("Snake consumed the fruit at {%d, %d}", ft->coordinate.x, ft->coordinate.y);
-        assignNewFruit(space);
         updateScore(sn->len);
+        return assignNewFruit(space);
     }
+    return 0;
 }
 
 void moveSnake(struct objectspace* space) {
-    switch (gameplay->gamestate) {
-        case ALIVE: {
-            switch (space->sn->state) {
-                case ALIVE:
-                    checkIfFruitConsumed(space);
-                    processKeyPressedAction(space);
-                    checkIfSnakeHitBoundary(space->sn, space->board);
-                    moveBodyParts(space->sn);
-                    updatePositionWithDirection(space->sn);
-                    checkIfEachHimself(space->sn);
-                    break;
-                case DEAD:
-                    removeSnakeSegment(space->sn);
-                    usleep(250000);
-                    break;
-                default:
-                    die("moveSnake");
-            }
-            break;
-        }
-        case DEAD: {
+    switch (space->sn->state) {
+        case ALIVE:
+            if (checkIfFruitConsumed(space) != 0) gameplay->gamestate = GAMEPLAY_WINNER;
+            if (checkIfSnakeHitBoundary(space->sn, space->board) != 0) gameplay->gamestate = GAMEPLAY_GAMEOVER;
+            if (checkIfEachHimself(space->sn) != 0) gameplay->gamestate = GAMEPLAY_GAMEOVER;
             processKeyPressedAction(space);
-        }
-    }
-}
-
-void updateScore(int score) {
-    if (gameplay != NULL) {
-        gameplay->score = score;
-    } else {
-        error("Game is not defined its null");
+            moveBodyParts(space->sn);
+            updatePositionWithDirection(space->sn);
+            break;
+        case DEAD:
+            removeSnakeSegment(space->sn);
+            usleep(250000);
+            break;
+        default:
+            die("moveSnake");
     }
 }
 
@@ -176,7 +160,7 @@ int initGameplay() {
     gameplay->username = malloc(len * sizeof(char));
     strcpy(gameplay->username, username);
     gameplay->score = 0;
-    gameplay->gamestate = ALIVE;
+    gameplay->gamestate = GAMEPLAY_PLAYING;
     gameplay->time = get_system_time();
     setMessage("%s %s", PROMPT_INIT_MESSAGE, gameplay->username);
     free(username);
@@ -189,4 +173,19 @@ int getGameplay(game* g) {
         return -1;
     }
     *g = *gameplay;
+    return 0;
+}
+
+void pausedGameplay() {
+    promptUser("Gameplay paused hit any key to play !!", 0);
+    gameplay->gamestate = GAMEPLAY_PLAYING;
+}
+
+void progressGameplay() {
+    switch (gameplay->gamestate) {
+        case GAMEPLAY_PLAYING:
+            return moveSnake(&objspace);
+        case GAMEPLAY_PAUSED:
+            return pausedGameplay();
+    }
 }
