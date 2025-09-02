@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "ansi.h"
+#include "terminal.h"
 
 void printStyleAt(struct abuf* ab, int x, int y, struct SpaceRepresentationStyle style) {
     char buf[200];
@@ -27,12 +28,17 @@ void printStringAtWithStyle(struct abuf* ab, int x, int y, const char* str, stru
 }
 
 void clearScreen(struct abuf* ab) {
-    abAppend(ab, "\x1b[2J\x1b[H", 6);
+    abAppend(ab, "\x1b[H", 3);
+    for (int i = 1; i <= terminal.row; i++) {
+        clearRow(ab, i);
+    }
+    abAppend(ab, "\x1b[H", 3);
 }
 
 void clearRow(struct abuf* ab, int row) {
     char buffer[20];
-    int written = snprintf(buffer, 20, "\x1b[%d;%dH\x1b[2K", row, 1);
+    moveCursor(ab, row, 0);
+    int written = snprintf(buffer, 20, "\x1b[2K");
     abAppend(ab, buffer, written);
 }
 
