@@ -189,3 +189,98 @@ void progressGameplay() {
             return pausedGameplay();
     }
 }
+
+int saveGamescore() {
+    if (gameplay == NULL) {
+        error("NULL gameplay cannot save game");
+        return -1;
+    }
+    if (gameplay->username == NULL) {
+        error("username is NULL cannot save game");
+        return -1;
+    }
+    game* g = gameplay;
+    char* config_file = getConfigFile();
+    if (config_file == NULL) {
+        error("NULL config file");
+        return -1;
+    }
+    if (create_file_if_not_exists(config_file) != 0) {
+        error("Config file does not exist");
+        return -1;
+    }
+    FILE* f = fopen(config_file, "ab");
+    int len;
+    len = strlen(g->username) + 1;
+    fwrite(&len, sizeof(int), 1, f);
+    fwrite(g->username, sizeof(char), len, f);
+
+    len = strlen(g->time) + 1;
+    fwrite(&len, sizeof(int), 1, f);
+    fwrite(g->time, sizeof(char), len, f);
+
+    fwrite(&g->score, sizeof(int), 1, f);
+    fwrite(&g->gamestate, sizeof(int), 1, f);
+    fclose(f);
+    return 0;
+}
+
+game *loadGamescores(int *load_len) {
+    char *config_file = getConfigFile();
+    if (config_file == NULL) {
+        error("NULL config file");
+        return NULL;
+    }
+    if (create_file_if_not_exists(config_file) != 0) {
+        error("Config file does not exist");
+        return NULL;
+    }
+    FILE *f = fopen(config_file, "rb");
+    if (f == NULL) {
+        return NULL;
+    }
+
+    int capacity = (*load_len == -1) ? 16 : *load_len; 
+    int actual_len = 0;
+    game *games = malloc(capacity * sizeof(game));
+    if (games == NULL) {
+        fclose(f);
+        return NULL;
+    }
+
+    while (1) {
+        if (*load_len != -1 && actual_len >= *load_len) break;
+        if (actual_len >= capacity) {
+            capacity *= 2;
+            game *new_games = realloc(games, capacity * sizeof(game));
+            if (new_games == NULL) {
+                for (int i = 0; i < actual_len; i++) {
+                    free(games[i].username);
+                    free(games[i].time);
+                }
+                free(games);
+                fclose(f);
+                return NULL;
+            }
+            games = new_games;
+        }
+
+        int len;
+        if (fread(&len, sizeof(int), 1, f) != 1) break;
+
+        games[actual_len].username = malloc(len);
+        fread(games[actual_len].username, sizeof(char), len, f);
+
+        fread(&len, sizeof(int), 1, f);
+        games[actual_len].time = malloc(len);
+        fread(games[actual_len].time, sizeof(char), len, f);
+
+        fread(&games[actual_len].score, sizeof(int), 1, f);
+        fread(&games[actual_len].gamestate, sizeof(int), 1, f);
+        
+        actual_len++;
+    }
+    *load_len = actual_len;
+    fclose(f);
+    return games;
+}

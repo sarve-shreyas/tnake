@@ -11,7 +11,6 @@
 #include "printter.h"
 #include "screen.h"
 #include "utils.h"
-#include "printter.h"
 
 #define SNAKE_INIT_LEN 20
 #define GAMEBOARD_INIT_WIDTH 40
@@ -80,7 +79,11 @@ int scorescreen() {
     switch (key) {
         case 's':
         case 'S':
-            // save score
+            if (saveGamescore() == 0) {
+                promptUser("Score saved success !!", 0);
+            } else {
+                promptUser("Some error in saving score", 0);
+            }
             break;
         case 'M':
         case 'm':
@@ -122,14 +125,47 @@ int gameplayscreen() {
     return scorescreen();
 }
 
+char** formatGame(game g, int* len) {
+    char time[256];
+    stringAppend(2, time, "Time - ", g.time);
+    char username[256];
+    stringAppend(2, username, "User - ", g.username);
+    char scoe[256];
+    stringAppend(2, scoe, "Score - ", "22");
+    char gamestate[256];
+    char* state = g.gamestate == GAMEPLAY_WINNER ? "WON" : "GAMEOVER";
+    stringAppend(2, gamestate, "Gamestate", state);
+
+    *len = 4;
+    char** megs = malloc(*len * sizeof(char*));
+    megs[0] = strdup(time);
+    megs[1] = strdup(username);
+    megs[2] = strdup(scoe);
+    megs[3] = strdup(gamestate);
+    return megs;
+}
 int scoreboardscreen() {
     clearScreenAB();
-    char* megs[] = {"Score - 20"};
-    int len = 1;
-    return screenPromptMessage(len, megs, NULL, NULL);
+    int load_len = 5;
+    game* games = loadGamescores(&load_len);
+    int total_len = 0;
+    char** megs = NULL;
+    for (int i = 0; i < load_len; i++) {
+        int form_len;
+        char** formattedScore = formatGame(games[i], &form_len);
+        megs = realloc(megs, (total_len + form_len + 2) * sizeof(char*));
+        for (int j = 0; j < form_len; j++) {
+            megs[total_len++] = formattedScore[j];
+        }
+        megs[total_len++] = "";
+        megs[total_len++] = "---";
+        free(formattedScore);
+    }
+    if (games) free(games);
+    return screenPromptMessage(total_len, megs, "Press any key to go back", "Scoreboard");
 }
 
-int initRender(){
+int initRender() {
     changeCusrsorState(DEAD);
     clearScreenAB();
     return mainmenuscreen();

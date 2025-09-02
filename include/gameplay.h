@@ -19,4 +19,6 @@ enum Gameplay_State {
 int initGameplay();
 int getGameplay(game* g);
 void progressGameplay();
+int saveGamescore();
+game* loadGamescores(int *load_len);
 #endif  // GAMEPLAY_H

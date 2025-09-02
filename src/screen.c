@@ -177,12 +177,14 @@ void refreshScreenPromptMessageScreen() {
     clearScreen(&ab);
     int rows = terminal.row;
     int cols = terminal.col;
-    int start_row = rows / 2 - megs.len;
+    int start_row = (rows - megs.len - 2) / 2;
+    start_row = start_row <= 0 ? 1 : start_row;
+    debug("start row %d", start_row);
     char title[strlen(megs.title) + 20];
     snprintf(title, 50, "=== %s ===", megs.title);
     struct SpaceRepresentationStyle style = no_object_style;
-    printRowCenter(&ab, start_row - 2, title, style);
-
+    printRowCenter(&ab, start_row, title, style);
+    start_row += 2;
     int max_len = -1;
     for (int i = 0; i < megs.len; i++) {
         int displayWidth = getDisplayWidth(megs.megs[i], strlen(megs.megs[i]));
@@ -190,7 +192,7 @@ void refreshScreenPromptMessageScreen() {
             max_len = displayWidth;
         }
     }
-    int col =  (cols > max_len) ? (cols - max_len) / 2 : 1; 
+    int col = (cols > max_len) ? (cols - max_len) / 2 : 1;
     for (int i = 0; i < megs.len; i++) {
         int row = start_row + i;
         printStringAtWithStyle(&ab, row, col, megs.megs[i], style);
