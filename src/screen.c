@@ -178,8 +178,8 @@ void refreshScreenPromptMessageScreen() {
     int rows = terminal.row;
     int cols = terminal.col;
     int start_row = rows / 2 - megs.len;
-    char title[50];
-    snprintf(title, 50, "=== Message ===");
+    char title[strlen(megs.title) + 20];
+    snprintf(title, 50, "=== %s ===", megs.title);
     struct SpaceRepresentationStyle style = no_object_style;
     printRowCenter(&ab, start_row - 2, title, style);
 
@@ -196,6 +196,6 @@ void refreshScreenPromptMessageScreen() {
         int row = start_row + i;
         printStringAtWithStyle(&ab, row, col, megs.megs[i], style);
     }
-    printRowCenter(&ab, rows - 2, PROMPT_SCREEN_PROMPT_INFO, no_object_style);
+    printRowCenter(&ab, rows - 2, megs.footer, no_object_style);
     abFlush(&ab);
 }

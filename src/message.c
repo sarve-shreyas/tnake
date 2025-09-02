@@ -118,26 +118,33 @@ void resetScreenpromptmegs() {
     }
 }
 
-void setScreenpromptmegs(int len, char** msg) {
+void setScreenpromptmegs(int len, char** msg, char* footer, char* title) {
     resetScreenpromptmegs();
     userPromptMessages = malloc(sizeof(screenpromptmegs));
+    char* defaultFooter = PROMPT_SCREEN_DEFAULT_FOOTER;
+    char* defaultTitle = PROMPT_SCREEN_DEFAULT_TITLE;
     userPromptMessages->megs = msg;
     userPromptMessages->len = len;
+    userPromptMessages->footer = footer == NULL ? defaultFooter : footer;
+    userPromptMessages->title = title == NULL ? defaultTitle : title;
 }
 
-void screenPromptMessage(int len, char** msgs) {
-    setScreenpromptmegs(len, msgs);
-    int key = -1;
+int screenPromptMessage(int len, char** msgs, char* footer, char* title) {
+    setScreenpromptmegs(len, msgs, footer, title);
     while (1) {
         refreshScreenPromptMessageScreen();
-        key = editorReadKeyRaw(10000);
+        int key = editorReadKeyRaw(10000);
         if (key == EXIT) {
             info("Pressed exit key killing process");
+            resetScreenpromptmegs();
             pexit(0);
+            return EXIT;
         } else if (key != KEY_TIMEOUT) {
-            return resetScreenpromptmegs();
+            resetScreenpromptmegs();
+            return key;
         }
     }
+    return -1;
 }
 
 int getScreenpromptmegs(screenpromptmegs* megs) {

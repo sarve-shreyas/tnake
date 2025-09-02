@@ -8,7 +8,8 @@
 #define PROMPT_HIT_BOUNDARY "Walls kill you stay awayyyyyy !!!"
 #define PROMPT_CLOSE_CALL "Ops close call could have eaten self"
 #define PROMPT_USERNAME_FORCE "Cant snake 🐍 around without name 👀"
-#define PROMPT_SCREEN_PROMPT_INFO "Press any key to continue..."
+#define PROMPT_SCREEN_DEFAULT_FOOTER "Press any key to continue..."
+#define PROMPT_SCREEN_DEFAULT_TITLE "Message"
 
 typedef struct {
     char* msg;
@@ -20,6 +21,8 @@ extern promptmessage prompt;
 
 typedef struct {
     char** megs;
+    char* footer;
+    char* title;
     int len;
 } screenpromptmegs;
 
@@ -27,6 +30,6 @@ void setMessage(const char* fmt, ...);
 void updatePromptMessageState(int state);
 void emptyMessage();
 char* promptUser(const char* prompt, int need_data);
-void screenPromptMessage(int len, char** msg);
+int screenPromptMessage(int len, char** msg, char* footer, char* title);
 int getScreenpromptmegs(screenpromptmegs* megs);
 #endif

@@ -37,8 +37,8 @@ int howtoplayscreen() {
         "Space - pause gameplay",
         "CTRL + C / CTRL + Q - Quit game"};
     int lem = 7;
-    screenPromptMessage(lem, megs);
-    return 0;
+    char* title = "How to play ?";
+    return screenPromptMessage(lem, megs, NULL, title);
 }
 
 int scorescreen() {
@@ -51,8 +51,9 @@ int scorescreen() {
     char* scoe[256];
     stringAppend(2, scoe, "Score - ", "22");
     int len = 3;
+    char* title = "Game Score";
     char* megs[] = {time, username, scoe};
-    screenPromptMessage(len, megs);
+    return screenPromptMessage(len, megs, NULL, title);
 }
 
 int gameplayscreen() {
@@ -71,5 +72,5 @@ int scoreboardscreen() {
     clearScreenAB();
     char* megs[] = {"Score - 20"};
     int len = 1;
-    screenPromptMessage(len, megs);
+    return screenPromptMessage(len, megs, NULL, NULL);
 }
