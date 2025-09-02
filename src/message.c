@@ -31,7 +31,7 @@ void setMessage(const char* fmt, ...) {
         error("Error while allocating memory to prompt message , killing the process");
         die("setMessage");
     }
-    int written = vsnprintf(prompt.msg, buffer_size, fmt, ap);
+    vsnprintf(prompt.msg, buffer_size, fmt, ap);
     va_end(ap);
     refreshPromptMessage();
 }

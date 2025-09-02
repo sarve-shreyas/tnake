@@ -33,5 +33,5 @@ int getANSIColorEncoding(char* buf, size_t buf_size, int code);
 int getANSIColorEncodingWithBg(char* buf, size_t buf_size, int fgcolor, int bgcolor);
 
 char* colorChar(char ch, int bgcolor, int fgcolor);
-char* colorStr(char* str, int bgcolor, int fgcolor);
+char* colorStr(const char* str, int bgcolor, int fgcolor);
 #endif

@@ -9,7 +9,7 @@
 
 static menudata* tmenu = NULL;
 
-int setmenu(const menudata* m) {
+void setmenu(const menudata* m) {
     if (tmenu != NULL) {
         free(tmenu);
     }

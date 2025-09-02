@@ -46,7 +46,7 @@ int initMessagePrompt() {
 }
 
 int initObjectSpace(objectspaceconfigs configs) {
-        struct snake* sn = malloc(sizeof(struct snake));
+    struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
 
     if (configureSnake(configs.snake_init_len, sn) != 0) {
@@ -68,5 +68,40 @@ int initObjectSpace(objectspaceconfigs configs) {
         return -1;
     }
     info("Initialising objectspace success");
+    return 0;
+}
+
+void deleteSnake() {
+    if (objspace.sn == NULL) return;
+    while (objspace.sn->len) {
+        removeSnakeSegment(objspace.sn);
+    }
+    free(objspace.sn);
+    objspace.sn = NULL;
+}
+
+void deleteFruit() {
+    if (objspace.fruit == NULL) return;
+    objspace.fruit->displayState = DEAD;
+    objspace.fruit->coordinate.x = -1;
+    objspace.fruit->coordinate.y = -1;
+    free(objspace.fruit);
+    objspace.fruit = NULL;
+}
+
+void deleteGameboard() {
+    struct gameboard* board = &objspace.board;
+    board->height = -1;
+    board->width = -1;
+    board->bottom_left = OUTSIDE_SPACE_CORDINATE;
+    board->bottom_right = OUTSIDE_SPACE_CORDINATE;
+    board->top_left = OUTSIDE_SPACE_CORDINATE;
+    board->top_right = OUTSIDE_SPACE_CORDINATE;
+}
+
+int deleteObjectSpace() {
+    deleteSnake();
+    deleteFruit();
+    deleteGameboard();
     return 0;
 }

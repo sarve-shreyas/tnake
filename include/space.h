@@ -1,6 +1,8 @@
 #ifndef SPACE_H
 #define SPACE_H
 
+#define OUTSIDE_SPACE_CORDINATE (struct coordinate){-1, -1}
+
 enum SpaceComponent {
     HEAD = 1000,
     BODY_PART,
@@ -48,5 +50,6 @@ struct coordinate {
     int x;
     int y;
 };
+
 int sameCordinates(struct coordinate a, struct coordinate b);
 #endif  // SPACE_H

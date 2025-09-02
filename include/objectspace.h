@@ -21,4 +21,5 @@ typedef struct {
 
 extern struct objectspace objspace;
 int initObjectSpace(objectspaceconfigs configs);
+int deleteObjectSpace();
 #endif  // OBJECTSPACE_H

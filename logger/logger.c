@@ -75,7 +75,7 @@ int open_file_if_not() {
     return 0;
 }
 
-void log(struct loggerinformation l_data) {
+void _log(struct loggerinformation l_data) {
     if (open_file_if_not() == 1) return;
     char* final_msg = preprarelogmessage(l_data);
     fputs(final_msg, log_file);
@@ -84,7 +84,7 @@ void log(struct loggerinformation l_data) {
 }
 void log_message_v(int log_level, char* msg, va_list ap) {
     struct loggerinformation _ = {.msg = msg, .log_level = log_level, .timestamp = get_time(), .args = ap};
-    log(_);
+    _log(_);
     free(_.timestamp);
 }
 

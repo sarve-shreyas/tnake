@@ -67,7 +67,7 @@ char* colorChar(char ch, int bgcolor, int fgcolor) {
     return buf;
 }
 
-char* colorStr(char* str, int bgcolor, int fgcolor) {
+char* colorStr(const char* str, int bgcolor, int fgcolor) {
     char color_style[16];
     char reset_style[16];
 

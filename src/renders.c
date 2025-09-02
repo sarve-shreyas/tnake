@@ -11,6 +11,13 @@
 #include "printter.h"
 #include "screen.h"
 #include "utils.h"
+#include "printter.h"
+
+#define SNAKE_INIT_LEN 20
+#define GAMEBOARD_INIT_WIDTH 40
+#define GAMEBOARD_INIT_HEIGHT 32
+
+objectspaceconfigs configs = {.gameboard_height = GAMEBOARD_INIT_HEIGHT, .gameboard_width = GAMEBOARD_INIT_WIDTH, .snake_init_len = SNAKE_INIT_LEN};
 
 void clearScreenAB() {
     struct abuf ab = ABUF_INIT;
@@ -88,7 +95,8 @@ int scorescreen() {
 int gameplayscreen() {
     howtoplayscreen();
     clearScreenAB();
-    initGameplay();
+    if (initObjectSpace(configs) != 0) die("initObjectspace");
+    if (initGameplay() != 0) die("initGameplay");
     int keep_running = ALIVE;
     while (keep_running == ALIVE) {
         game gameplay;
@@ -110,6 +118,7 @@ int gameplayscreen() {
         refreshGameScreen();
     }
     refreshGameScreen();
+    deleteObjectSpace();
     return scorescreen();
 }
 
@@ -118,4 +127,10 @@ int scoreboardscreen() {
     char* megs[] = {"Score - 20"};
     int len = 1;
     return screenPromptMessage(len, megs, NULL, NULL);
+}
+
+int initRender(){
+    changeCusrsorState(DEAD);
+    clearScreenAB();
+    return mainmenuscreen();
 }

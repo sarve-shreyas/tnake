@@ -13,25 +13,13 @@
 #include "terminal.h"
 #include "utils.h"
 
-#define SNAKE_INIT_LEN 20
-#define GAMEBOARD_INIT_WIDTH 40
-#define GAMEBOARD_INIT_HEIGHT 32
-
-game gameplay;
-objectspaceconfigs configs = {.gameboard_height = GAMEBOARD_INIT_HEIGHT, .gameboard_width = GAMEBOARD_INIT_WIDTH, .snake_init_len = SNAKE_INIT_LEN};
-
 void init(void) {
-    struct abuf ab = ABUF_INIT;
     if (initTerminal() != 0) die("initTerminal");
-    if (initObjectSpace(configs) != 0) die("initObjectspace");
-    abAppend(&ab, "\x1b[2J", 4);
-    abAppend(&ab, "\x1b[?25l", 6);
-    abFlush(&ab);
+    initRender();
 }
 
 int main() {
     init();
-    mainmenuscreen();
     pexit(0);
     return 0;
 }

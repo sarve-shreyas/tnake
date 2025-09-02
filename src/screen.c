@@ -192,7 +192,6 @@ void refreshScreenPromptMessageScreen() {
     }
     int col =  (cols > max_len) ? (cols - max_len) / 2 : 1; 
     for (int i = 0; i < megs.len; i++) {
-        int len = strlen(megs.megs[i]);
         int row = start_row + i;
         printStringAtWithStyle(&ab, row, col, megs.megs[i], style);
     }

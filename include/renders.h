@@ -5,5 +5,5 @@ int mainmenuscreen();
 int howtoplayscreen();
 int gameplayscreen();
 int scoreboardscreen();
-
+int initRender();
 #endif  // TNAKE_RENDERS_H
