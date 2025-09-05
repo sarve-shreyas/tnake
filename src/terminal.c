@@ -1,13 +1,15 @@
 #include "terminal.h"
 
 #include <locale.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 #include <wchar.h>
+
+#include <sys/ioctl.h>
 
 #include "logger.h"
 #include "utils.h"
@@ -53,11 +55,21 @@ int getWindowSize(int* rows, int* cols) {
         return 0;
     }
 }
+static void on_signal(int sig) {
+    pexit(sig);
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
 
 void disableRawMode(void) {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_terminos) == -1) {
         die("tcsetattr");
     }
+}
+
+void onExit(void) {
+    debug("onExit callback called");
+    pexit(0);
 }
 
 void enableRawMode(void) {
@@ -76,16 +88,18 @@ void enableRawMode(void) {
      *  `INPCK` -> enables parity checking
      *  `ISTRIP` -> causes 8th bit of each input byte to be stripped, it will set it to 0.
      */
-    raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);  // input flags
+    raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP); // input flags
     /* Local Flags
      * `ECHO` -> flag is responsible for echoing what key has been pressed
      * `ICANON` -> cannonical mode flag
-     *  Ctrl + C sends signal `SIGINT` which causes process to terminal , Ctrl + Z sends signal `SIGTSTP` which causes process to suspend to turn of this both processes to turn this of we can turn of flag ISIG this unables application to read `Ctrl + [C|Z]`
-     *  Ctrl + V enables us to send anything when typed after `Ctrl + V` then any singal will be captured as byte from ternimal to diable this we can use flag `IEXTEN`
+     *  Ctrl + C sends signal `SIGINT` which causes process to terminal , Ctrl + Z sends signal `SIGTSTP` which causes process to suspend to turn of this both processes to turn this of we can turn of
+     * flag ISIG this unables application to read `Ctrl + [C|Z]` Ctrl + V enables us to send anything when typed after `Ctrl + V` then any singal will be captured as byte from ternimal to diable this
+     * we can use flag `IEXTEN`
      */
-    raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);  // local flags
+    raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN); // local flags
     /* Output Processing Flags
-     * terminal translates `\n` into carriage return followed by newline (`\r\n`). the carriage return moves cursor to the begining of current line & newline moves cursor to nextline, also scrolls if required. we can use flag `OPOST` to diable this.
+     * terminal translates `\n` into carriage return followed by newline (`\r\n`). the carriage return moves cursor to the begining of current line & newline moves cursor to nextline, also scrolls if
+     * required. we can use flag `OPOST` to diable this.
      */
     raw.c_oflag &= ~(OPOST);
     /* Control Flags
@@ -97,8 +111,8 @@ void enableRawMode(void) {
      * `VMIN` -> minimum number of bytes if unput needed before read() can return
      * `VTIME` -> maximum amount of time to wait before read() return, if timesout then read() will return 0 which means 0 bytes read.
      */
-    raw.c_cc[VMIN] = 0;   // Return as soon as there is there is any input to be read.
-    raw.c_cc[VTIME] = 1;  // 1/10 of the second or 100 milliseconds.
+    raw.c_cc[VMIN] = 0;  // Return as soon as there is there is any input to be read.
+    raw.c_cc[VTIME] = 1; // 1/10 of the second or 100 milliseconds.
     /*
      * `tcsetarrt` -> set terminal flags to diable this.
      * `TCSAFLUSH` specifies the changes to be applied after all outputs are writtern to terminal & discard all input thet hasn't been read
@@ -106,6 +120,16 @@ void enableRawMode(void) {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
         die("tcsetattr");
     }
+
+    atexit(onExit);
+    struct sigaction sa = {0};
+    sa.sa_handler = on_signal;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGSEGV, &sa, NULL);
 }
 
 /**

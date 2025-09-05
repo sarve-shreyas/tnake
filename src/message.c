@@ -196,7 +196,6 @@ int screenPromptMessage(int len, char** msgs, char* footer, char* title) {
         refreshScreenPromptMessageScreen();
         int key = editorReadKeyRaw(10000);
         if (key == EXIT) {
-            info("Pressed exit key killing process");
             resetScreenpromptmegs();
             pexit(0);
             return EXIT;

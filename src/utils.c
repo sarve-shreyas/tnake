@@ -6,9 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
 
 #include "abuffer.h"
 #include "logger.h"
@@ -28,6 +29,7 @@ void pexit(int code) {
     struct abuf ab = ABUF_INIT;
     changeCursorStateToBuf(&ab, ALIVE);
     clearScreen(&ab);
+    abAppend(&ab, "\r\n", 2);
     abFlush(&ab);
     disableRawMode();
     return exit(code);
@@ -98,7 +100,7 @@ int create_dir_if_not_exists(const char* path) {
     }
 
     size_t len = strlen(path);
-    if (len == 1 && path[0] == '/') return 0; 
+    if (len == 1 && path[0] == '/') return 0;
 
     char* tmp = malloc(len + 1);
     if (!tmp) return -1;
