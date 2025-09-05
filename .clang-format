@@ -1,0 +1,43 @@
+# .clang-format
+BasedOnStyle: LLVM
+IndentWidth: 4
+UseTab: Never
+
+BreakBeforeBraces: Attach # { on same line (K&R / 1TBS)
+
+# One-line control statements if possible
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+
+# Line wrapping & alignment
+ColumnLimit: 200
+IndentCaseLabels: true
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+AlignConsecutiveDeclarations: false
+PointerAlignment: Left
+MaxEmptyLinesToKeep: 1
+InsertNewlineAtEOF: true
+# -----------------------------
+# Include formatting
+# -----------------------------
+
+SortIncludes: true # Alphabetical order inside each group
+IncludeBlocks: Regroup # Merge into sorted groups with blank lines
+
+# Define include groups and their order
+IncludeCategories:
+  - Regex: "^<[^/]+>$" # Standard library headers (e.g., <vector>, <stdio.h>)
+    Priority: 1
+    SortPriority: 0 # Ensure sorted alphabetically within group
+  - Regex: "^<.*/.*>$" # System headers with subdirs (e.g., <GL/gl.h>)
+    Priority: 2
+    SortPriority: 0
+  - Regex: '^"[^/]+\.h"$' # Local project headers (flat, e.g., "mylib.h")
+    Priority: 3
+    SortPriority: 0
+  - Regex: ".*" # Fallback: any other includes
+    Priority: 4
+    SortPriority: 0
