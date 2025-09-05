@@ -1,5 +1,6 @@
 #include "objectspace.h"
 
+#include <_stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,20 @@
 #include "utils.h"
 
 struct objectspace objspace;
+static objectspaceconfigs* spaceConfigs = NULL;
+
+void deleteSpaceConfigs() {
+    if (spaceConfigs != NULL) {
+        free(spaceConfigs);
+        spaceConfigs = NULL;
+    }
+}
+
+void setSpaceConfig(objectspaceconfigs configs) {
+    deleteSpaceConfigs();
+    spaceConfigs = malloc(sizeof(objectspaceconfigs));
+    *spaceConfigs = configs;
+}
 
 int initFruit(struct objectspace* space) {
     if (!space || !space->sn) return -1;
@@ -38,17 +53,14 @@ int initFruit(struct objectspace* space) {
 }
 
 int initMessagePrompt() {
-    prompt.msg = NULL;
-    char* welcomeMessage = PROMPT_INIT_MESSAGE;
-    setMessage(welcomeMessage);
-    updatePromptMessageState(ALIVE);
+    initPromptMessage(spaceConfigs->gameboard_width * 2, spaceConfigs->gameboard_height, NULL);
     return 0;
 }
 
 int initObjectSpace(objectspaceconfigs configs) {
     struct snake* sn = malloc(sizeof(struct snake));
     struct gameboard board;
-
+    setSpaceConfig(configs);
     if (configureSnake(configs.snake_init_len, sn) != 0) {
         error("[configureSnake] Error while configuring snake returning -1");
         return -1;
@@ -103,5 +115,15 @@ int deleteObjectSpace() {
     deleteSnake();
     deleteFruit();
     deleteGameboard();
+    deleteSpaceConfigs();
+    return 0;
+}
+
+int getObjectpsaceConfig(objectspaceconfigs* configs) {
+    if (configs == NULL) {
+        configs = NULL;
+        return -1;
+    }
+    *configs = *spaceConfigs;
     return 0;
 }

@@ -21,4 +21,5 @@ struct gameboard {
 
 int configureGameBoard(int height, int width, struct gameboard* board, struct terminal termi);
 int getBoardBoundaryType(int i, int j, struct gameboard board);
-#endif  // GAMEBOARD_H
+#endif // GAMEBOARD_H
+

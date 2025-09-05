@@ -1,21 +1,84 @@
 #include "message.h"
 
+#include <_stdio.h>
+#include <_stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <sys/stat.h>
 
 #include "keyboard.h"
 #include "logger.h"
 #include "printter.h"
 #include "screen.h"
 #include "space.h"
+#include "terminal.h"
 #include "utils.h"
-
 promptmessage prompt;
 screenpromptmegs* userPromptMessages = NULL;
 
-void setMessage(const char* fmt, ...) {
+static Alignment DEFAULT_PROMPT_ALIGN = {.hAlign = MIDDLE_ALIGNMENT, .vAlign = START_ALIGNMENT};
+static Alignment DEFAULT_CONTENT_ALIGN = {.hAlign = START_ALIGNMENT, .vAlign = MIDDLE_ALIGNMENT};
+
+void updatePromptStyle(struct SpaceRepresentationStyle* style) {
+    prompt.style.align = style == NULL || style->align == NULL ? &DEFAULT_PROMPT_ALIGN : style->align;
+    prompt.style.contentAlign = style == NULL || style->align == NULL ? &DEFAULT_CONTENT_ALIGN : style->contentAlign;
+    int rCol = prompt.width;
+    int rRow = prompt.referenceHeight;
+
+    int c = (terminal.col - rCol) / 2;
+    int r = (terminal.row - rRow) / 2;
+    switch (prompt.style.align->vAlign) {
+        case START_ALIGNMENT: {
+            prompt.start_cordi.x = r;
+            prompt.end_cordi.x = prompt.start_cordi.x;
+            break;
+        }
+        case END_ALIGNMENT: {
+            prompt.start_cordi.x = r + prompt.referenceHeight;
+            prompt.end_cordi.x = prompt.start_cordi.x;
+            break;
+        }
+        case MIDDLE_ALIGNMENT: {
+            prompt.start_cordi.x = terminal.row / 2;
+            prompt.end_cordi.x = prompt.start_cordi.x;
+            break;
+        }
+    }
+    switch (prompt.style.align->hAlign) {
+        case START_ALIGNMENT: {
+            prompt.start_cordi.y = 1;
+            prompt.end_cordi.y = prompt.width;
+            break;
+        }
+        case END_ALIGNMENT: {
+            prompt.start_cordi.y = terminal.col - prompt.width;
+            prompt.end_cordi.y = terminal.col;
+            break;
+        }
+        case MIDDLE_ALIGNMENT: {
+            prompt.start_cordi.y = c;
+            prompt.end_cordi.y = c + prompt.width;
+            break;
+        }
+    }
+}
+
+int initPromptMessage(int width, int referenceHeight, struct SpaceRepresentationStyle* style) {
+    prompt.width = width;
+    prompt.referenceHeight = referenceHeight;
+    prompt.style.align = malloc(sizeof(Alignment));
+    prompt.style.contentAlign = malloc(sizeof(Alignment));
+    setMessage(NULL, ALIVE, NULL);
+    updatePromptStyle(style);
+    return 0;
+}
+
+void setMessage(struct SpaceRepresentationStyle* style, int state, const char* fmt, ...) {
+    updatePromptMessageState(state);
+    if (fmt == NULL) return emptyMessage();
     va_list ap, ap2;
     va_start(ap, fmt);
     va_copy(ap2, ap);
@@ -33,6 +96,8 @@ void setMessage(const char* fmt, ...) {
     }
     vsnprintf(prompt.msg, buffer_size, fmt, ap);
     va_end(ap);
+
+    updatePromptStyle(style);
     refreshPromptMessage();
 }
 
@@ -54,19 +119,18 @@ void updatePromptMessageState(int state) {
             debug("Updating prompt state to dead");
             prompt.state = DEAD;
             break;
-        default:
-            debug("Invalid message state");
-            break;
+        default: debug("Invalid message state"); break;
     }
 }
 
 char* returnValueWithResetState(char* buf) {
+    setMessage(NULL, ALIVE, "");
     changeCusrsorState(DEAD);
     updatePromptMessageState(ALIVE);
     return buf;
 }
 
-char* promptUser(const char* prompt, int need_data) {
+char* promptUser(struct SpaceRepresentationStyle* style, const char* prompt, int need_data) {
     size_t bufsize = 128;
     char* buf = malloc(bufsize);
 
@@ -75,7 +139,7 @@ char* promptUser(const char* prompt, int need_data) {
     if (need_data) changeCusrsorState(ALIVE);
     updatePromptMessageState(DEAD);
     while (1) {
-        setMessage(prompt, buf);
+        setMessage(style, DEAD, prompt, buf);
         refreshPromptMessage();
 
         int c = editorReadKeyRaw(1000000);
@@ -84,19 +148,16 @@ char* promptUser(const char* prompt, int need_data) {
             pexit(0);
         }
         if (!need_data) {
-            setMessage("");
             free(buf);
             return returnValueWithResetState(NULL);
         }
         if (c == DELETE_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
             if (buflen != 0) buf[--buflen] = '\0';
         } else if (c == ESCAPE) {
-            setMessage("");
             free(buf);
             return returnValueWithResetState(NULL);
         } else if (c == '\r') {
             if (buflen != 0) {
-                setMessage("");
                 return returnValueWithResetState(buf);
             }
         } else if (!iscntrl(c) && c < 128) {

@@ -78,7 +78,7 @@ int checkIfEachHimself(struct snake* sn) {
         if (nextnode->data.coordinate.x == headenode->data.coordinate.x && nextnode->data.coordinate.y == headenode->data.coordinate.y) {
             sn->state = DEAD;
             deleteSnakeSegment(sn, nextnode);
-            setMessage(PROMPT_SNAKE_EAT_SELF);
+            setMessage(NULL, ALIVE, PROMPT_SNAKE_EAT_SELF);
             return 1;
         }
         nextnode = nextnode->nextnode;
@@ -92,7 +92,7 @@ int checkIfSnakeHitBoundary(struct snake* sn, struct gameboard board) {
     if (head.x < 0 || head.y < 0 || head.x >= board.height || head.y >= board.width) {
         sn->state = DEAD;
         info("Snake hit the boundary killing snake & changing snake state to %d", sn->state);
-        setMessage(PROMPT_HIT_BOUNDARY);
+        setMessage(NULL, ALIVE, PROMPT_HIT_BOUNDARY);
         return 1;
     }
     return 0;
@@ -125,16 +125,14 @@ void moveSnake(struct objectspace* space) {
             removeSnakeSegment(space->sn);
             usleep(250000);
             break;
-        default:
-            die("moveSnake");
+        default: die("moveSnake");
     }
 }
 
 char* trim(char* str) {
     char* end;
     while (isspace((unsigned char)*str)) str++;
-    if (*str == '\0')
-        return str;
+    if (*str == '\0') return str;
     end = str + strlen(str) - 1;
     while (end > str && isspace((unsigned char)*end)) end--;
     *(end + 1) = '\0';
@@ -143,16 +141,21 @@ char* trim(char* str) {
 
 int validateUsername(char* username) {
     if (username == NULL) return -1;
-    trim(username);
+    username = trim(username);
+    debug("string %s, len %d", username, strlen(username));
     if (strlen(username) == 0) return -1;
     return 0;
 }
 
 int initGameplay() {
-    char* username = promptUser("Username %s", 1);
+    Alignment align = {.hAlign = MIDDLE_ALIGNMENT, .vAlign = MIDDLE_ALIGNMENT};
+    Alignment contentAlign = {.hAlign = START_ALIGNMENT, .vAlign = MIDDLE_ALIGNMENT};
+    struct SpaceRepresentationStyle style = {.align = &align, .contentAlign = &contentAlign};
+    char* username = promptUser(&style, "Username > %s", 1);
     if (validateUsername(username) != 0) {
         free(username);
-        promptUser(PROMPT_USERNAME_FORCE, 0);
+        contentAlign.hAlign = MIDDLE_ALIGNMENT;
+        promptUser(&style, PROMPT_USERNAME_FORCE, 0);
         return initGameplay();
     }
     gameplay = malloc(sizeof(game));
@@ -162,7 +165,7 @@ int initGameplay() {
     gameplay->score = 0;
     gameplay->gamestate = GAMEPLAY_PLAYING;
     gameplay->time = get_system_time();
-    setMessage("%s %s", PROMPT_INIT_MESSAGE, gameplay->username);
+    setMessage(NULL, ALIVE, "%s %s", PROMPT_INIT_MESSAGE, gameplay->username);
     free(username);
     return 0;
 }
@@ -177,16 +180,14 @@ int getGameplay(game* g) {
 }
 
 void pausedGameplay() {
-    promptUser("Gameplay paused hit any key to play !!", 0);
+    promptUser(NULL, "Gameplay paused hit any key to play !!", 0);
     gameplay->gamestate = GAMEPLAY_PLAYING;
 }
 
 void progressGameplay() {
     switch (gameplay->gamestate) {
-        case GAMEPLAY_PLAYING:
-            return moveSnake(&objspace);
-        case GAMEPLAY_PAUSED:
-            return pausedGameplay();
+        case GAMEPLAY_PLAYING: return moveSnake(&objspace);
+        case GAMEPLAY_PAUSED: return pausedGameplay();
     }
 }
 
@@ -225,8 +226,8 @@ int saveGamescore() {
     return 0;
 }
 
-game *loadGamescores(int *load_len) {
-    char *config_file = getConfigFile();
+game* loadGamescores(int* load_len) {
+    char* config_file = getConfigFile();
     if (config_file == NULL) {
         error("NULL config file");
         return NULL;
@@ -235,14 +236,14 @@ game *loadGamescores(int *load_len) {
         error("Config file does not exist");
         return NULL;
     }
-    FILE *f = fopen(config_file, "rb");
+    FILE* f = fopen(config_file, "rb");
     if (f == NULL) {
         return NULL;
     }
 
-    int capacity = (*load_len == -1) ? 16 : *load_len; 
+    int capacity = (*load_len == -1) ? 16 : *load_len;
     int actual_len = 0;
-    game *games = malloc(capacity * sizeof(game));
+    game* games = malloc(capacity * sizeof(game));
     if (games == NULL) {
         fclose(f);
         return NULL;
@@ -252,7 +253,7 @@ game *loadGamescores(int *load_len) {
         if (*load_len != -1 && actual_len >= *load_len) break;
         if (actual_len >= capacity) {
             capacity *= 2;
-            game *new_games = realloc(games, capacity * sizeof(game));
+            game* new_games = realloc(games, capacity * sizeof(game));
             if (new_games == NULL) {
                 for (int i = 0; i < actual_len; i++) {
                     free(games[i].username);
@@ -277,7 +278,7 @@ game *loadGamescores(int *load_len) {
 
         fread(&games[actual_len].score, sizeof(int), 1, f);
         fread(&games[actual_len].gamestate, sizeof(int), 1, f);
-        
+
         actual_len++;
     }
     *load_len = actual_len;

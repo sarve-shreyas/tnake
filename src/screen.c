@@ -1,5 +1,6 @@
 #include "screen.h"
 
+#include <_stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,7 @@
 #include "objectspace.h"
 #include "printter.h"
 #include "snake.h"
+#include "space.h"
 #include "styles.h"
 #include "utils.h"
 
@@ -83,25 +85,53 @@ void printScore(struct abuf* ab) {
 
 void printPromptMessage(struct abuf* ab) {
     static struct coordinate* cordi = NULL;
+    struct SpaceRepresentationStyle style = prompt.style;
 
-    int x = objspace.board.top_left.x - 2;
-    int startY = objspace.board.top_left.y - 1;
-    int endY = objspace.board.top_right.y + 1;
+    int x = prompt.start_cordi.x - 2;
+    int startY = prompt.start_cordi.y - 1;
+    int endY = prompt.end_cordi.y + 1;
     int messagePromptUIWidth = getDisplayWidth(prompt.msg, prompt.len);
     int endPromptY = cordi == NULL ? -1 : cordi->y + messagePromptUIWidth;
+
     if (cordi == NULL) {
         cordi = malloc(sizeof(struct coordinate));
-        cordi->x = x;
         cordi->y = startY + 1;
-    } else if (endPromptY == (endY - 1)) {
-        cordi->y = startY + 1;
-    } else {
-        cordi->y += 1;
+    }
+    if (prompt.state == ALIVE) {
+        if (cordi == NULL) {
+            cordi = malloc(sizeof(struct coordinate));
+            cordi->x = x;
+            cordi->y = startY + 1;
+        } else if (endPromptY == (endY - 1)) {
+            cordi->y = startY + 1;
+        } else {
+            cordi->y += 1;
+        }
+    } else if (style.contentAlign != NULL) {
+        switch (style.contentAlign->hAlign) {
+            case START_ALIGNMENT: {
+                cordi->y = startY + 1;
+                break;
+            }
+            case END_ALIGNMENT: {
+                cordi->y = endY - messagePromptUIWidth;
+                break;
+            }
+            case MIDDLE_ALIGNMENT: {
+                cordi->y = (endY - startY - messagePromptUIWidth) / 2 + startY;
+                break;
+            }
+        }
+    }
+    switch (prompt.style.align->vAlign) {
+        case MIDDLE_ALIGNMENT: clearScreen(ab); break;
+        case START_ALIGNMENT:
+        case END_ALIGNMENT: clearRow(ab, x); break;
     }
     clearRow(ab, x);
     printStringAt(ab, x, startY, "[");
     printStringAt(ab, x, endY, "]");
-    printStringAt(ab, cordi->x, cordi->y, prompt.msg);
+    printStringAt(ab, x, cordi->y, prompt.msg);
     if (prompt.state == DEAD) cordi = NULL;
 }
 
@@ -159,10 +189,8 @@ void refreshMenuScreen() {
         int len = strlen(m.options[i]);
         int row = start_row + i * 2;
         char buffer[len + 20];
-        if (i == m.selected)
-            snprintf(buffer, len + 20, " %s       ", m.options[i]);
-        else
-            snprintf(buffer, len + 20, "%s", m.options[i]);
+        if (i == m.selected) snprintf(buffer, len + 20, " %s       ", m.options[i]);
+        else snprintf(buffer, len + 20, "%s", m.options[i]);
         printRowCenter(&ab, row, buffer, style);
     }
     printRowCenter(&ab, start_row + m.len * 3, MENU_SCREEN_INFO_MSG, getRepresentationStyle(GMENU_FOOTER));

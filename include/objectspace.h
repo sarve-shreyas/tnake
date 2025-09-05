@@ -1,12 +1,9 @@
 #ifndef OBJECTSPACE_H
 #define OBJECTSPACE_H
 
-#include "abuffer.h"
-#include "ansi.h"
 #include "fruit.h"
 #include "gameboard.h"
 #include "snake.h"
-#include "space.h"
 
 struct objectspace {
     struct snake* sn;
@@ -22,4 +19,5 @@ typedef struct {
 extern struct objectspace objspace;
 int initObjectSpace(objectspaceconfigs configs);
 int deleteObjectSpace();
-#endif  // OBJECTSPACE_H
+int getObjectpsaceConfig(objectspaceconfigs* configs);
+#endif // OBJECTSPACE_H

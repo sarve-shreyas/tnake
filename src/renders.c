@@ -1,15 +1,16 @@
 #include "renders.h"
 
+#include <_string.h>
 #include <string.h>
 
 #include "abuffer.h"
 #include "gameplay.h"
 #include "gmenu.h"
-#include "logger.h"
 #include "message.h"
 #include "objectspace.h"
 #include "printter.h"
 #include "screen.h"
+#include "space.h"
 #include "utils.h"
 
 #define SNAKE_INIT_LEN 20
@@ -41,22 +42,15 @@ int mainmenuscreen() {
             pexit(0);
             break;
         }
-        default:
-            die("Invalid option selected");
+        default: die("Invalid option selected");
     }
     return -1;
 }
 
 int howtoplayscreen() {
     clearScreenAB();
-    char* megs[] = {
-        "Arrow Up/W - Direction to upward",
-        "Arrow Down/S - Direction to downward",
-        "Arrow Left/D - Direction to leftward",
-        "Arrow Right/A - Direction to rightward",
-        "",
-        "Space - pause gameplay",
-        "CTRL + C / CTRL + Q - Quit game"};
+    char* megs[] = {"Arrow Up/W - Direction to upward", "Arrow Down/S - Direction to downward", "Arrow Left/D - Direction to leftward", "Arrow Right/A - Direction to rightward", "",
+                    "Space - pause gameplay",           "CTRL + C / CTRL + Q - Quit game"};
     int lem = 7;
     char* title = "How to play ?";
     return screenPromptMessage(lem, megs, NULL, title);
@@ -78,19 +72,20 @@ int scorescreen() {
     int key = screenPromptMessage(len, megs, footer, title);
     switch (key) {
         case 's':
-        case 'S':
+        case 'S': {
+            Alignment align = {.hAlign = MIDDLE_ALIGNMENT, .vAlign = MIDDLE_ALIGNMENT};
+            Alignment contentAlign = {.hAlign = MIDDLE_ALIGNMENT, .vAlign = MIDDLE_ALIGNMENT};
+            struct SpaceRepresentationStyle style = {.align = &align, .contentAlign = &contentAlign};
             if (saveGamescore() == 0) {
-                promptUser("Score saved success !!", 0);
+                promptUser(&style, "Score saved success !!", 0);
             } else {
-                promptUser("Some error in saving score", 0);
+                promptUser(&style, "Some error in saving score", 0);
             }
             break;
+        }
         case 'M':
-        case 'm':
-            return mainmenuscreen();
-        default:
-            pexit(0);
-            break;
+        case 'm': return mainmenuscreen();
+        default: pexit(0); break;
     }
     return -1;
 }
@@ -105,18 +100,11 @@ int gameplayscreen() {
         game gameplay;
         if (getGameplay(&gameplay) != 0) die("getGameplay");
         switch (gameplay.gamestate) {
-            case GAMEPLAY_PLAYING:
-                progressGameplay();
-                break;
-            case GAMEPLAY_PAUSED:
-                progressGameplay();
-                break;
+            case GAMEPLAY_PLAYING: progressGameplay(); break;
+            case GAMEPLAY_PAUSED: progressGameplay(); break;
             case GAMEPLAY_WINNER:
-            case GAMEPLAY_GAMEOVER:
-                keep_running = DEAD;
-                break;
-            default:
-                die("invalidGamestate");
+            case GAMEPLAY_GAMEOVER: keep_running = DEAD; break;
+            default: die("invalidGamestate");
         }
         refreshGameScreen();
     }
