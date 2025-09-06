@@ -1,11 +1,14 @@
 #include "renders.h"
 
 #include <_string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "abuffer.h"
 #include "gameplay.h"
 #include "gmenu.h"
+#include "logger.h"
 #include "message.h"
 #include "objectspace.h"
 #include "printter.h"
@@ -23,6 +26,26 @@ void clearScreenAB() {
     struct abuf ab = ABUF_INIT;
     clearScreen(&ab);
     abFlush(&ab);
+}
+
+char** formatGame(game g, int* len) {
+    char time[256];
+    stringAppend(2, time, "Time - ", g.time);
+    char username[256];
+    stringAppend(2, username, "User - ", g.username);
+    char scoe[256];
+    snprintf(scoe, 256, "Score - %d", g.score);
+    char gamestate[256];
+    char* state = g.gamestate == GAMEPLAY_WINNER ? "WON" : "GAMEOVER";
+    stringAppend(2, gamestate, "Gamestate - ", state);
+
+    *len = 4;
+    char** megs = malloc(*len * sizeof(char*));
+    megs[0] = strdup(time);
+    megs[1] = strdup(username);
+    megs[2] = strdup(scoe);
+    megs[3] = strdup(gamestate);
+    return megs;
 }
 
 int mainmenuscreen() {
@@ -59,17 +82,25 @@ int howtoplayscreen() {
 int scorescreen() {
     game g;
     getGameplay(&g);
-    char time[256];
-    stringAppend(2, time, "Time - ", g.time);
-    char username[256];
-    stringAppend(2, username, "User - ", g.username);
-    char scoe[256];
-    stringAppend(2, scoe, "Score - ", "22");
-    int len = 7;
+
+    int len = -1;
+    char** megs = formatGame(g, &len);
     char* title = "Game Score";
     char* footer = "Press any other key to exit";
-    char* megs[] = {time, username, scoe, "", "S - save score", "M - Main Menu", "Q - Quit"};
-    int key = screenPromptMessage(len, megs, footer, title);
+    char* megs_extra[] = {"", "S - save score", "M - Main Menu", "Q - Quit"};
+
+    int extra_len = sizeof(megs_extra) / sizeof(megs_extra[0]);
+    char** merged = malloc((len + extra_len) * sizeof(char*));
+    if (!merged) {
+        error("scorescreen malloc");
+        die("malloc");
+        return 1;
+    }
+    for (int i = 0; i < len; i++) merged[i] = megs[i];
+    for (int i = 0; i < extra_len; i++) merged[len + i] = megs_extra[i];
+    len += extra_len;
+
+    int key = screenPromptMessage(len, merged, footer, title);
     switch (key) {
         case 's':
         case 'S': {
@@ -87,6 +118,9 @@ int scorescreen() {
         case 'm': return mainmenuscreen();
         default: pexit(0); break;
     }
+
+    free(megs);
+    free(merged);
     return -1;
 }
 
@@ -113,25 +147,6 @@ int gameplayscreen() {
     return scorescreen();
 }
 
-char** formatGame(game g, int* len) {
-    char time[256];
-    stringAppend(2, time, "Time - ", g.time);
-    char username[256];
-    stringAppend(2, username, "User - ", g.username);
-    char scoe[256];
-    stringAppend(2, scoe, "Score - ", "22");
-    char gamestate[256];
-    char* state = g.gamestate == GAMEPLAY_WINNER ? "WON" : "GAMEOVER";
-    stringAppend(2, gamestate, "Gamestate", state);
-
-    *len = 4;
-    char** megs = malloc(*len * sizeof(char*));
-    megs[0] = strdup(time);
-    megs[1] = strdup(username);
-    megs[2] = strdup(scoe);
-    megs[3] = strdup(gamestate);
-    return megs;
-}
 int scoreboardscreen() {
     clearScreenAB();
     int load_len = 5;

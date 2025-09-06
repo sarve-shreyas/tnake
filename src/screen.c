@@ -8,6 +8,7 @@
 
 #include "digitaldisplay.h"
 #include "fruit.h"
+#include "gameplay.h"
 #include "gmenu.h"
 #include "logger.h"
 #include "message.h"
@@ -72,7 +73,9 @@ void printDigit(struct abuf* ab, int* x, int* y, char digit) {
 
 void printScore(struct abuf* ab) {
     struct gameboard board = objspace.board;
-    int score = objspace.sn->len;
+    game g;
+    if (getGameplay(&g) != 0) die("printScore");
+    int score = g.score;
     if (objspace.sn->state == DEAD) return;
     char buffer[100];
     int written = snprintf(buffer, 100, "SCORE - %d", score);
