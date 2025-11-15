@@ -64,6 +64,10 @@ void updatePromptStyle(struct SpaceRepresentationStyle* style) {
             break;
         }
     }
+
+    prompt.start_cordi.x -= 2;
+    prompt.start_cordi.y -= 1;
+    prompt.end_cordi.y += 1;
 }
 
 int initPromptMessage(int width, int referenceHeight, struct SpaceRepresentationStyle* style) {

@@ -129,6 +129,7 @@ int gameplayscreen() {
     clearScreenAB();
     if (initObjectSpace(configs) != 0) die("initObjectspace");
     if (initGameplay() != 0) die("initGameplay");
+    clearScreenAB();
     int keep_running = ALIVE;
     while (keep_running == ALIVE) {
         game gameplay;

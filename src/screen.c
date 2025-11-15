@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "abuffer.h"
 #include "digitaldisplay.h"
 #include "fruit.h"
 #include "gameplay.h"
@@ -17,6 +18,7 @@
 #include "snake.h"
 #include "space.h"
 #include "styles.h"
+#include "terminal.h"
 #include "utils.h"
 
 int getObjectOnBoard(int i, int j, struct snake* sn, struct fruit* ft) {
@@ -55,11 +57,13 @@ void printGameboard(struct abuf* ab) {
     }
 }
 
-void printDigit(struct abuf* ab, int* x, int* y, char digit) {
+int printDigit(struct abuf* ab, int* x, int* y, char digit) {
     int r = 0;
     int c = 0;
     int old_x = *x;
     int** arr = get_digi_repr(digit, &r, &c);
+    int possible = (*x + r) < terminal.row && (*y + c) < terminal.col ? 1 : 0;
+    if (!possible) return -1;
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
             int repr = arr[i][j];
@@ -69,6 +73,33 @@ void printDigit(struct abuf* ab, int* x, int* y, char digit) {
     }
     *x = old_x;
     *y += c + 1;
+    return 0;
+}
+
+void printPlanScore(struct abuf* ab, char* str, int len) {
+    int scoreDisplayWidth = getDisplayWidth(str, len);
+    struct coordinate scordi;
+    struct coordinate ecordi;
+    switch (prompt.style.align->vAlign) {
+        case END_ALIGNMENT:
+        case MIDDLE_ALIGNMENT: {
+            scordi.x = objspace.board.top_left.x - 2;
+            scordi.y = objspace.board.top_left.y - 1;
+            ecordi.x = scordi.x;
+            ecordi.y = objspace.board.top_right.y + 1;
+            break;
+        }
+        case START_ALIGNMENT: {
+            scordi.x = prompt.start_cordi.x - 1;
+            scordi.y = objspace.board.top_left.y - 1;
+            ecordi.x = scordi.x;
+            ecordi.y = objspace.board.top_right.y + 1;
+        }
+    }
+    clearRow(ab, scordi.x);
+    printStringAt(ab, scordi.x, scordi.y, "[");
+    printStringAt(ab, scordi.x, ecordi.y, "]");
+    printStringAt(ab, scordi.x, scordi.y + 2, str);
 }
 
 void printScore(struct abuf* ab) {
@@ -82,7 +113,10 @@ void printScore(struct abuf* ab) {
     int x = board.bottom_left.x + 2;
     int y = board.bottom_left.y + 4;
     for (int i = 0; i < written; i++) {
-        printDigit(ab, &x, &y, buffer[i]);
+        if (printDigit(ab, &x, &y, buffer[i]) != 0) {
+            printPlanScore(ab, buffer, written);
+            break;
+        }
     }
 }
 
@@ -90,9 +124,9 @@ void printPromptMessage(struct abuf* ab) {
     static struct coordinate* cordi = NULL;
     struct SpaceRepresentationStyle style = prompt.style;
 
-    int x = prompt.start_cordi.x - 2;
-    int startY = prompt.start_cordi.y - 1;
-    int endY = prompt.end_cordi.y + 1;
+    int x = prompt.start_cordi.x;
+    int startY = prompt.start_cordi.y;
+    int endY = prompt.end_cordi.y;
     int messagePromptUIWidth = getDisplayWidth(prompt.msg, prompt.len);
     int endPromptY = cordi == NULL ? -1 : cordi->y + messagePromptUIWidth;
 
